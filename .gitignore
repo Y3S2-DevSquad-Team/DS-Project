@@ -8,6 +8,15 @@ lerna-debug.log*
 .pnpm-debug.log*
 package-lock.json
 
+.dockerignore
+docker-compose.yml
+Dockerfile
+
+delivery-deployment.yaml
+mongo-deployment.yaml
+
+
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
