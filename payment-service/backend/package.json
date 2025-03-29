@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Delivery Service Backend",
+  "description": "Payment Service Backend",
   "keywords": [],
   "license": "ISC",
   "author": "Yasiru Kaveeshwara",
@@ -17,8 +17,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "joi": "^17.13.3",
-    "mongoose": "^8.13.0"
+    "express-validator": "^7.2.1",
+    "mongoose": "^8.13.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",
