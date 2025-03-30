@@ -14,6 +14,10 @@ Dockerfile
 
 delivery-deployment.yaml
 mongo-deployment.yaml
+.env.docker
+
+payment-deployment.yaml
+payment-service.yaml
 
 
 

@@ -12,7 +12,7 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // for PayHere callback
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const paymentRoutes = require("./routes/paymentRoutes");
@@ -23,13 +23,15 @@ app.get("/", (req, res) => {
   res.send("💰 Payment Service is running.");
 });
 
-// Error Handling (optional, future)
+// Error Handler
 app.use((err, req, res, next) => {
   console.error("[Unhandled Error]", err);
   res.status(500).json({ message: "Internal Server Error" });
 });
 
-// Start Server
-app.listen(PORT, () => console.log(`[Server] Payment Service running on port ${PORT}`));
+// ✅ ONLY start server if not in test mode
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => console.log(`[Server] Payment Service running on port ${PORT}`));
+}
 
-module.exports = app; // ✅ useful for testing with Supertest
+module.exports = app;
