@@ -4,7 +4,10 @@ const {
   getRestaurants,
   getRestaurant,
   updateRestaurant,
-  deleteRestaurant
+  deleteRestaurant,
+  addOrderToRestaurant,
+  completeOrder
+
 } = require('../controllers/RestaurantController.js');
 
 const router = express.Router();
@@ -15,5 +18,9 @@ router.get('/', getRestaurants);
 router.get('/:id', getRestaurant);
 router.put('/:id', updateRestaurant);
 router.delete('/:id', deleteRestaurant);
+
+// Order-related routes
+router.post('/:restaurantId/orders/:orderId', addOrderToRestaurant);
+router.post('/:restaurantId/orders/:orderId/complete', completeOrder);
 
 module.exports = router;

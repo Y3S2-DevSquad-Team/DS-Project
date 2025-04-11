@@ -101,10 +101,63 @@ const deleteRestaurant = async (req, res) => {
   }
 };
 
+// Add order to restaurant's current orders
+const addOrderToRestaurant = async (req, res) => {
+  try {
+    const { restaurantId, orderId } = req.params;
+
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    // Check if restaurant can accept more orders
+    if (restaurant.currentOrders.length >= restaurant.maxActiveOrders) {
+      return res.status(400).json({ message: 'Restaurant is at maximum order capacity' });
+    }
+
+    restaurant.currentOrders.push(orderId);
+    await restaurant.save();
+
+    res.json(restaurant);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Move order from current to history (when completed)
+const completeOrder = async (req, res) => {
+  try {
+    const { restaurantId, orderId } = req.params;
+
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    // Remove from current orders
+    restaurant.currentOrders = restaurant.currentOrders.filter(
+      id => id.toString() !== orderId
+    );
+
+    // Add to order history
+    restaurant.orderHistory.push(orderId);
+    await restaurant.save();
+
+    res.json(restaurant);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
 module.exports = {
   createRestaurant,
   getRestaurants,
   getRestaurant,
   updateRestaurant,
-  deleteRestaurant
+  deleteRestaurant,
+  addOrderToRestaurant,
+  completeOrder
 };
