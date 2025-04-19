@@ -79,5 +79,5 @@ docker-compose*.yml
 **/k8s/secrets/
 
 # Docker
-!Dockerfile       # Keep Dockerfile
+Dockerfile       # Keep Dockerfile
 !.dockerignore    # Keep .dockerignore
