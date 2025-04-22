@@ -1,14 +1,8 @@
-const express = require('express');
-const auth = require('../middleware/auth');
-const orderController = require('../controllers/orderController');
-
+const express = require("express");
 const router = express.Router();
+const orderController = require("../controllers/orderController");
 
-router.post('/create',  orderController.createOrder);  //remove auth for testing purprses
-router.get('/user/:userId', orderController.getOrdersByUser);
-router.get('/:orderId',  orderController.getOrderById);
-router.put('/update/:orderId',  orderController.updateOrderStatus);
-router.delete('/delete/:orderId', orderController.deleteOrder);
+router.post("/place", orderController.placeOrder);
 
 module.exports = router;
 

@@ -13,10 +13,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const orderRoutes = require('./routes/orderRoutes');
-const cartRoutes = require("./routes/cartRoute");
+
 
 app.use('/api/orders', orderRoutes);
-app.use('/api/cart', cartRoutes);
+
 
 
 
