@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-backend-deployment
+  labels:
+    app: cart-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cart-backend
+  template:
+    metadata:
+      labels:
+        app: cart-backend
+    spec:
+      containers:
+        - name: cart-backend
+          image: cart-backend:latest
+          ports:
+            - containerPort: 5001
+          env:
+            - name: PORT
+              value: "5001"
+            - name: MONGO_URI
+              value: "mongodb+srv://admin:Admin123@cart-service.hisumkv.mongodb.net/?retryWrites=true&w=majority&appName=Cart-service"
