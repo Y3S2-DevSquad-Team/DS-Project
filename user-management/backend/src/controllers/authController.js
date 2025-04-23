@@ -11,6 +11,11 @@ const {
 } = require("../utils/ErrorHandling/CustomErrors.js");
 const AppError = require("../utils/ErrorHandling/AppError");
 const mongoose = require("mongoose");
+const {
+  sendWelcomeEmailToCustomer,
+  sendWelcomeEmailToDeliveryPerson,
+  sendWelcomeEmailToRestaurant,
+} = require("../utils/mailer");
 
 const generateTokens = async (user) => {
   const details = {
@@ -61,6 +66,11 @@ exports.signupUser = async (req, res, next) => {
       email,
       phone,
       role: "Customer",
+    });
+
+    await sendWelcomeEmail({
+      to: newUser.email,
+      username: newUser.username,
     });
 
     const tokens = await generateTokens(newUser);
@@ -119,7 +129,12 @@ exports.signupCustomer = async (req, res, next) => {
       return next(new ValidationFailureError("All fields are required"));
     }
     const exists = await User.findOne({ $or: [{ email }, { phone }] });
-    if (exists) return next(new DuplicateRecordsError("User already exists"));
+    if (exists)
+      return next(
+        new DuplicateRecordsError(
+          "User already exists/Email/Phone number is linked to an active account already. Please login"
+        )
+      );
 
     const user = await User.create({
       username,
@@ -129,6 +144,12 @@ exports.signupCustomer = async (req, res, next) => {
       role: "Customer",
       deliveryAddresses,
     });
+
+    await sendWelcomeEmailToCustomer({
+      to: user.email,
+      username: user.username,
+    });
+
     const tokens = await generateTokens(user);
     return handleResponse(res, 201, "Customer signed up", { user, ...tokens });
   } catch (error) {
@@ -159,7 +180,12 @@ exports.signupDeliveryPerson = async (req, res, next) => {
       return next(new ValidationFailureError("All fields are required"));
     }
     const exists = await User.findOne({ $or: [{ email }, { phone }] });
-    if (exists) return next(new DuplicateRecordsError("User already exists"));
+    if (exists)
+      return next(
+        new DuplicateRecordsError(
+          "User already exists/Email/Phone number is linked to an active account already. Please login"
+        )
+      );
 
     const user = await User.create({
       username,
@@ -170,6 +196,10 @@ exports.signupDeliveryPerson = async (req, res, next) => {
       vehicleType,
       licenseNumber,
       nic,
+    });
+    await sendWelcomeEmailToDeliveryPerson({
+      to: user.email,
+      username: user.username,
     });
     const tokens = await generateTokens(user);
     return handleResponse(res, 201, "Delivery person signed up", {
@@ -211,7 +241,12 @@ exports.signupRestaurant = async (req, res, next) => {
     }
 
     const exists = await User.findOne({ $or: [{ email }, { phone }] });
-    if (exists) return next(new DuplicateRecordsError("User already exists"));
+    if (exists)
+      return next(
+        new DuplicateRecordsError(
+          "User already exists/Email/Phone number is linked to an active account already. Please login"
+        )
+      );
 
     const user = await User.create({
       username,
@@ -227,7 +262,10 @@ exports.signupRestaurant = async (req, res, next) => {
       bankDetails,
       restaurantStatus: "pending",
     });
-
+    await sendWelcomeEmailToRestaurant({
+      to: user.email,
+      username: user.username,
+    });
     const tokens = await generateTokens(user);
     return handleResponse(res, 201, "Restaurant signed up", {
       user,
