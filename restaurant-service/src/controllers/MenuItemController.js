@@ -1,20 +1,23 @@
 const MenuItem = require('../models/MenuItemModel.js');
 const Restaurant = require('../models/RestaurantModel.js');
 
-// Modify createMenuItem to include restaurant validation
 const createMenuItem = async (req, res) => {
   try {
-    // 1. Check if restaurant exists
+    // Check if restaurant exists
     const restaurant = await Restaurant.findById(req.body.restaurantId);
     if (!restaurant) {
       return res.status(404).json({ error: 'Restaurant not found' });
     }
 
-    // 2. Create the menu item
-    const menuItem = new MenuItem(req.body);
+    // Create menu item with image path if available
+    const menuItemData = {
+      ...req.body,
+      imagePath: req.file ? req.file.path : null
+    };
+
+    const menuItem = new MenuItem(menuItemData);
     await menuItem.save();
     
-    // 3. Add menu item to restaurant's menuItems array
     restaurant.menuItems.push(menuItem._id);
     await restaurant.save();
 
