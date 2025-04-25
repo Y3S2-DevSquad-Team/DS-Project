@@ -2,6 +2,7 @@ import { useState } from "react";
 import Sidebar from "../../components/UserManagement/Sidebar";
 import CustomerSignupForm from "../../components/UserManagement/CustomerSignupForm";
 import DeliveryPersonSignupForm from "../../components/UserManagement/DeliveryPersonSignupForm";
+import RestaurantSignupForm from "../../components/UserManagement/RestaurantSignupForm";
 
 const Home = () => {
   const [activeRole, setActiveRole] = useState("Customer");
@@ -13,9 +14,7 @@ const Home = () => {
       case "DeliveryPerson":
         return <DeliveryPersonSignupForm />;
       case "Restaurant":
-        return (
-          <div className="p-6 text-white">Restaurant Signup Coming Soon</div>
-        );
+        return <RestaurantSignupForm />;
       default:
         return null;
     }

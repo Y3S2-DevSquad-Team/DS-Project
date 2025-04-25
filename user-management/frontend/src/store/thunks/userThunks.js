@@ -4,9 +4,22 @@ import api from "../../configs/api";
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (data) => {
-    const url = data.deliveryAddresses
-      ? "/auth/signup/customer"
-      : "/auth/signup/delivery";
+    let url = "";
+
+    if (data.deliveryAddresses) {
+      url = "/auth/signup/customer";
+    } else if (data.vehicleType && data.licenseNumber && data.nic) {
+      url = "/auth/signup/delivery";
+    } else if (
+      data.restaurantName &&
+      data.businessLicenseNumber &&
+      data.bankDetails
+    ) {
+      url = "/auth/signup/restaurant";
+    } else {
+      throw new Error("Invalid signup data");
+    }
+
     const response = await api.post(url, data);
     return response.data;
   }
