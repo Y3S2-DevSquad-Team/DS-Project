@@ -103,3 +103,70 @@ exports.getDeliveriesForDriver = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch deliveries" });
   }
 };
+
+
+// 1️⃣ Get all available deliveries (unassigned)
+exports.getAvailableDeliveries = async (req, res) => {
+  try {
+    const deliveries = await Delivery.find({ status: "unassigned" });
+    res.json(deliveries);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch available deliveries" });
+  }
+};
+
+// 2️⃣ Rider accepts a delivery
+exports.acceptDelivery = async (req, res) => {
+  try {
+    const delivery = await Delivery.findById(req.params.id);
+    if (!delivery) return res.status(404).json({ message: "Delivery not found" });
+
+    if (delivery.status !== "unassigned") {
+      return res.status(400).json({ message: "Delivery already assigned" });
+    }
+
+    delivery.driverId = req.user._id; // from token after auth integration
+    delivery.status = "assigned";
+
+    await delivery.save();
+    res.json({ message: "Delivery assigned successfully", delivery });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to accept delivery" });
+  }
+};
+
+
+// Mark Delivery as Picked Up
+exports.markPickedUp = async (req, res) => {
+  try {
+    const delivery = await Delivery.findById(req.params.id);
+    if (!delivery) return res.status(404).json({ message: "Delivery not found" });
+
+    delivery.status = "picked";
+    await delivery.save();
+
+    res.json({ message: "Marked as picked up", delivery });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to mark pickup" });
+  }
+};
+
+
+// Mark Delivery as Delivered
+exports.markDelivered = async (req, res) => {
+  try {
+    const delivery = await Delivery.findById(req.params.id);
+    if (!delivery) return res.status(404).json({ message: "Delivery not found" });
+
+    delivery.status = "delivered";
+    await delivery.save();
+
+    res.json({ message: "Delivery completed", delivery });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to mark as delivered" });
+  }
+};

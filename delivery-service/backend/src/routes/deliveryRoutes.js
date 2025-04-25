@@ -5,7 +5,12 @@ const {
   updateStatus,
   updateLocation,
   getStatusByOrderId,
-  getDeliveriesForDriver
+  getDeliveriesForDriver,
+  getAvailableDeliveries,
+  acceptDelivery,
+  markPickedUp,
+  markDelivered
+  
 } = require("../controllers/deliveryController");
 
 // Assign a delivery to a driver
@@ -22,5 +27,15 @@ router.get("/status/:orderId", getStatusByOrderId);
 
 // Get deliveries for a specific driver
 router.get("/driver/:driverId", getDeliveriesForDriver);
+
+router.get("/available", getAvailableDeliveries);
+
+router.patch("/accept/:id", acceptDelivery);
+
+router.patch('/pickup/:id', markPickedUp);
+
+router.patch('/deliver/:id', markDelivered);
+
+
 
 module.exports = router;

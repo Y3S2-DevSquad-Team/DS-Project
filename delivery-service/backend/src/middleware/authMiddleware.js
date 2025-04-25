@@ -1,4 +1,8 @@
-// Mock middleware – replace later with JWT verification
+const { authToken } = require("user-service/middleware/token");
+const { restrictTo } = require("user-service/middleware/roleCheck");
+
+
+
 const mockAuth = (role = null) => {
   return (req, res, next) => {
     // Simulate extracted user info

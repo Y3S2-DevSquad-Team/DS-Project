@@ -4,53 +4,6 @@ const { validationResult } = require("express-validator");
 const { MERCHANT_SECRET } = require("../config/payhereConfig");
 const verifySignature = require("../utils/verifySignature");
 
-// 🔐 Future-proof for Auth: req.user.id can replace req.body.userId when Auth is integrated
-
-// 1️⃣ Initiate Payment (redirect user to PayHere)
-exports.initiatePayment = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-  try {
-    const { orderId, userId, amount, first_name, last_name, email, phone, address, city } = req.body;
-
-    const payment = await Payment.create({
-      orderId,
-      userId,
-      amount,
-      status: "pending",
-    });
-
-    const paymentData = {
-      merchant_id: process.env.MERCHANT_ID,
-      return_url: `${process.env.CLIENT_URL}/payment/success`,
-      cancel_url: `${process.env.CLIENT_URL}/payment/cancel`,
-      notify_url: `${process.env.SERVER_URL}/api/payment/callback`,
-
-      order_id: orderId,
-      items: "Delivery Order",
-      currency: "LKR",
-      amount: amount,
-
-      first_name,
-      last_name,
-      email,
-      phone,
-      address,
-      city,
-      country: "Sri Lanka",
-    };
-
-    res.json({
-      message: "Redirect to PayHere",
-      payhereURL: "https://sandbox.payhere.lk/pay/checkout",
-      payload: paymentData,
-    });
-  } catch (err) {
-    console.error("[Error] initiatePayment:", err);
-    res.status(500).json({ message: "Failed to initiate payment" });
-  }
-};
 
 // 2️⃣ Handle PayHere callback
 exports.handleCallback = async (req, res) => {
@@ -104,5 +57,71 @@ exports.getPaymentStatus = async (req, res) => {
   } catch (err) {
     console.error("[Error] getPaymentStatus:", err);
     res.status(500).json({ message: "Failed to retrieve payment status" });
+  }
+};
+
+
+exports.initiatePayment = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  try {
+    const {
+      orderId,
+      userId,
+      amount,
+      first_name,
+      last_name,
+      email,
+      phone,
+      address,
+      city,
+    } = req.body;
+
+    const payment = await Payment.create({
+      orderId,
+      userId,
+      amount,
+      status: "pending",
+    });
+
+    const paymentData = {
+      merchant_id: process.env.MERCHANT_ID,
+      return_url: `${process.env.CLIENT_URL}/payment/success`,
+      cancel_url: `${process.env.CLIENT_URL}/payment/cancel`,
+      notify_url: `${process.env.SERVER_URL}/api/payment/callback`,
+      order_id: orderId,
+      items: "Delivery Order",
+      currency: "LKR",
+      amount: amount,
+      first_name,
+      last_name,
+      email,
+      phone,
+      address,
+      city,
+      country: "Sri Lanka",
+    };
+
+    res.status(200).json({
+      message: "Redirect to PayHere",
+      payhereURL: "https://sandbox.payhere.lk/pay/checkout",
+      payload: paymentData,
+    });
+  } catch (err) {
+    console.error("[Error] initiatePayment:", err);
+    res.status(500).json({ message: "Failed to initiate payment" });
+  }
+};
+
+
+// Admin - Get All Payments
+exports.getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.find().sort({ createdAt: -1 }); // newest first
+    res.json(payments);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch payments" });
   }
 };

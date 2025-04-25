@@ -4,6 +4,7 @@ const {
   initiatePayment,
   handleCallback,
   getPaymentStatus,
+  getAllPayments,
 } = require("../controllers/paymentController");
 
 const { initiatePaymentValidator } = require("../validators/paymentValidator");
@@ -18,5 +19,8 @@ router.post("/callback", express.urlencoded({ extended: true }), handleCallback)
 
 // 3️⃣ Get status by order ID
 router.get("/status/:orderId", getPaymentStatus);
+
+router.get("/all", /* authToken, restrictTo('Admin'), */ getAllPayments);
+
 
 module.exports = router;

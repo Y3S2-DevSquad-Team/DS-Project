@@ -11,6 +11,7 @@ const deliverySchema = new mongoose.Schema(
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      default: null,
       ref: "User" // reference from Auth Service
     },
 
