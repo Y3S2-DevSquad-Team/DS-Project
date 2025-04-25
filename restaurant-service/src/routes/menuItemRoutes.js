@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const {
   createMenuItem,
   getMenuItems,
@@ -7,17 +6,14 @@ const {
   updateMenuItem,
   deleteMenuItem
 } = require('../controllers/MenuItemController.js');
-const upload = require('../utill/fileUpload');
 
+const router = express.Router();
 
 // Menu item routes
-
-
-router.post('/', upload.single('image'), createMenuItem);
-router.put('/:id', upload.single('image'), updateMenuItem);
+router.post('/', createMenuItem);
 router.get('/restaurant/:restaurantId', getMenuItems);
 router.get('/:id', getMenuItem);
-
+router.put('/:id', updateMenuItem);
 router.delete('/:id', deleteMenuItem);
 
 module.exports = router;
