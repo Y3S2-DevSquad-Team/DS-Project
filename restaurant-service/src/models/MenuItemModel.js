@@ -18,7 +18,8 @@ const MenuItemSchema = new mongoose.Schema({
     required: true
   },
   restaurantId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Restaurant', // This creates a reference to the Restaurant model
     required: true
   },
   availability: {

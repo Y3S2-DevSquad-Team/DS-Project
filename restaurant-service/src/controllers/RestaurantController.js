@@ -24,7 +24,9 @@ const getRestaurants = async (req, res) => {
 // Get single restaurant
 const getRestaurant = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id);
+    const restaurant = await Restaurant.findById(req.params.id)
+      .populate('menuItems');  // This will include full menu item documents
+    
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found' });
     }

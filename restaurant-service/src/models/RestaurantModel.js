@@ -34,6 +34,12 @@ const RestaurantSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  /* ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // Assuming your user model is named 'User'
+    required: true
+  },*/
+
   // Add reference to orders
   currentOrders: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -46,7 +52,12 @@ const RestaurantSchema = new mongoose.Schema({
   maxActiveOrders: {
     type: Number,
     default: 20  // Example limit
-  }
+  },
+  // Add this to your RestaurantSchema
+menuItems: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'MenuItem'
+}]
 }, { timestamps: true });
 
 const Restaurant = mongoose.model('Restaurant', RestaurantSchema);
