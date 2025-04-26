@@ -151,7 +151,59 @@ const completeOrder = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+/* for order
 
+const getOrderDashboard = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id)
+      .select('pendingOrders currentOrderCount orderLimit');
+    res.json(restaurant);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { id, orderId } = req.params;
+    const { status } = req.body;
+
+    const restaurant = await Restaurant.findById(id);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    const orderIndex = restaurant.pendingOrders.findIndex(
+      order => order.orderId === orderId
+    );
+
+    if (orderIndex === -1) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Update order status
+    restaurant.pendingOrders[orderIndex].status = status;
+
+    // If accepted, increment current order count
+    if (status === 'accepted') {
+      if (restaurant.currentOrderCount >= restaurant.orderLimit) {
+        return res.status(400).json({ message: 'Order limit reached' });
+      }
+      restaurant.currentOrderCount += 1;
+    }
+
+    // If rejected and was previously accepted, decrement count
+    if (status === 'rejected' && 
+        restaurant.pendingOrders[orderIndex].status === 'accepted') {
+      restaurant.currentOrderCount = Math.max(0, restaurant.currentOrderCount - 1);
+    }
+
+    await restaurant.save();
+    res.json(restaurant);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}; */
 
 
 module.exports = {

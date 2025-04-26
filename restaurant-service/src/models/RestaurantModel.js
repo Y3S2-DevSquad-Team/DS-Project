@@ -53,6 +53,29 @@ const RestaurantSchema = new mongoose.Schema({
     type: Number,
     default: 20  // Example limit
   },
+
+  /*after connecting to order
+orderLimit: {
+  type: Number,
+  default: 70
+},
+currentOrderCount: {
+  type: Number,
+  default: 0
+},
+pendingOrders: [{
+  orderId: String, // Will be replaced with ObjectId when connected
+  items: [{
+    name: String,
+    quantity: Number
+  }],
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected'],
+    default: 'pending'
+  },*/
+
+
   // Add this to your RestaurantSchema
 menuItems: [{
   type: mongoose.Schema.Types.ObjectId,

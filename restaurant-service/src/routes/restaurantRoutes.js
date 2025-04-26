@@ -23,4 +23,7 @@ router.delete('/:id', deleteRestaurant);
 router.post('/:restaurantId/orders/:orderId', addOrderToRestaurant);
 router.post('/:restaurantId/orders/:orderId/complete', completeOrder);
 
+/*router.get('/:id/orders', getOrderDashboard);
+router.put('/:id/orders/:orderId', updateOrderStatus);*/
+
 module.exports = router;
