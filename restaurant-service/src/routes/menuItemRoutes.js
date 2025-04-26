@@ -4,12 +4,14 @@ const {
   getMenuItems,
   getMenuItem,
   updateMenuItem,
-  deleteMenuItem
+  deleteMenuItem,
+  getAllMenuItems
 } = require('../controllers/MenuItemController.js');
 
 const router = express.Router();
 
 // Menu item routes
+router.get('/', getAllMenuItems);
 router.post('/', createMenuItem);
 router.get('/restaurant/:restaurantId', getMenuItems);
 router.get('/:id', getMenuItem);

@@ -83,10 +83,20 @@ const deleteMenuItem = async (req, res) => {
   }
 };
 
+const getAllMenuItems = async (req, res) => {
+  try {
+    const menuItems = await MenuItem.find().populate('restaurantId', 'name');
+    res.json(menuItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createMenuItem,
   getMenuItems,
   getMenuItem,
   updateMenuItem,
-  deleteMenuItem
+  deleteMenuItem,
+  getAllMenuItems
 };

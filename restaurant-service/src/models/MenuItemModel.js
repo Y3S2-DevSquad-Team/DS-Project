@@ -21,6 +21,9 @@ const MenuItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Restaurant', // This creates a reference to the Restaurant model
     required: true
+  }, imageFilename: {  // Store just the filename
+    type: String,
+    required: false
   },
   availability: {
     monday: { type: Boolean, default: true },
