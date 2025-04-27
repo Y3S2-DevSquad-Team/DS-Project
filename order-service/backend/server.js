@@ -1,6 +1,6 @@
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
+const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 
 const connectDB = require("./config/db.js");
@@ -9,7 +9,11 @@ const connectDB = require("./config/db.js");
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', // Must match your Vite frontend
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  }));
 app.use(bodyParser.json());
 
 const orderRoutes = require('./routes/orderRoutes');
