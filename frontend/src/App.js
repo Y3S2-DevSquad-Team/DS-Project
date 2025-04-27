@@ -35,38 +35,44 @@ import LoginForm from "../src/components/UserManagement/LoginForm.jsx";
 // import Restaurants from "../src/pages/UserManagement/Restaurants";
 // import Profile from "../src/pages/UserManagement/Profile";
 
+// ----------------------------------------yasasi
+
+import MenuPage from "./pages/order/MenuPage";
+import CartPage from "./pages/order/CartPage";
+import CheckoutPage from "./pages/order/CheckoutPage";
+import OrdersListPage from "./pages/order/OrdersListPage";
+import OrderStatusPage from "./pages/order/OrderStatusPage";
+
 function App() {
   return (
     <Router>
       <Navbar />
       <div className='min-h-screen text-white bg-secondary'>
         <Routes>
-      
-      {/* ----------------------------yasiru */}
+          {/* ----------------------------yasiru */}
 
-      {/* <Route path='/' element={<Home />} /> */}
+          {/* <Route path='/' element={<Home />} /> */}
 
-        {/* Delivery */}
-        <Route path='/delivery/request' element={<RequestDeliveryPage />} />
-        <Route path='/delivery/track/:orderId' element={<TrackDeliveryPage />} />
-        <Route path='/driver/:driverId/deliveries' element={<DriverDeliveriesPage />} />
-        <Route path='/driver/:driverId/update-location' element={<UpdateDriverLocationPage />} />
-        <Route path='/driver/:driverId/delivery/:deliveryId/update-status' element={<UpdateDeliveryStatusPage />} />
-        <Route path='/select-address' element={<SelectAddressPage />} />
-        <Route path='/driver/navigate/:id' element={<NavigationPage />} />
-        <Route path='/driver/pickup/:id' element={<PickupPage />} />
-        <Route path='/driver/deliver/:id' element={<DeliverToCustomerPage />} />
-        <Route path='/payment/redirect' element={<PaymentRedirectPage />} />
-        <Route path='/payment/success' element={<PaymentSuccessPage />} />
-        <Route path='/payment/cancel' element={<PaymentCancelPage />} />
-        <Route path='/customer/orders' element={<CustomerOrdersPage />} />
-        <Route path='/admin/payments' element={<AdminPaymentsPage />} />
+          {/* Delivery */}
+          <Route path='/delivery/request' element={<RequestDeliveryPage />} />
+          <Route path='/delivery/track/:orderId' element={<TrackDeliveryPage />} />
+          <Route path='/driver/:driverId/deliveries' element={<DriverDeliveriesPage />} />
+          <Route path='/driver/:driverId/update-location' element={<UpdateDriverLocationPage />} />
+          <Route path='/driver/:driverId/delivery/:deliveryId/update-status' element={<UpdateDeliveryStatusPage />} />
+          <Route path='/select-address' element={<SelectAddressPage />} />
+          <Route path='/driver/navigate/:id' element={<NavigationPage />} />
+          <Route path='/driver/pickup/:id' element={<PickupPage />} />
+          <Route path='/driver/deliver/:id' element={<DeliverToCustomerPage />} />
+          <Route path='/payment/redirect' element={<PaymentRedirectPage />} />
+          <Route path='/payment/success' element={<PaymentSuccessPage />} />
+          <Route path='/payment/cancel' element={<PaymentCancelPage />} />
+          <Route path='/customer/orders' element={<CustomerOrdersPage />} />
+          <Route path='/admin/payments' element={<AdminPaymentsPage />} />
 
-        {/* navigate(`/payment/redirect?orderId=${orderId}&amount=${totalAmount}`); */}
+          {/* navigate(`/payment/redirect?orderId=${orderId}&amount=${totalAmount}`); */}
 
-        {/* ----------------vilan------------------ */}
-        
-      
+          {/* ----------------vilan------------------ */}
+
           <Route path='/' element={<Home />} />
           <Route path='/500' element={<ErrorPage />} />
           <Route path='*' element={<NotFoundPage />} />
@@ -76,6 +82,14 @@ function App() {
           <Route path='/login' element={<LoginForm />} />
           {/* <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/profile" element={<Profile />} /> */}
+
+          {/* ----------------------yasasi------------- */}
+
+          <Route path='/menu' element={<MenuPage />} />
+          <Route path='/cart' element={<CartPage />} />
+          <Route path='/checkout' element={<CheckoutPage />} />
+          <Route path='/orders' element={<OrdersListPage />} />
+          <Route path='/orders/:id' element={<OrderStatusPage />} />
         </Routes>
       </div>
     </Router>
