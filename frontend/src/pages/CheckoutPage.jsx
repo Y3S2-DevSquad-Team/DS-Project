@@ -1,75 +1,49 @@
 import React, { useState } from 'react';
 import { useCart } from '../components/CartContext';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const CheckoutPage = () => {
   const { cartItems, clearCart } = useCart();
   const navigate = useNavigate();
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
-  const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handlePlaceOrder = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsSubmitting(true);
-    setError(null);
     
     try {
-      // Validate items before sending
-      if (!cartItems || cartItems.length === 0) {
-        throw new Error('Your cart is empty');
-      }
-
-      const invalidItems = cartItems.filter(item => 
-        !item.name || !item.price || !item.quantity
-      );
-      
-      if (invalidItems.length > 0) {
-        throw new Error('Some items in your cart are invalid');
-      }
-
       const orderData = {
-        userId: 'guest',
+        userId: "current_user_id", // Replace with actual user ID from auth
+        restaurantId: "restaurant_id", // Get from context or menu
+        restaurantName: "Restaurant Name", // Get from context
         items: cartItems.map(item => ({
-          name: item.name,
+          menuItemId: item.id || item.name, // Use name if no ID exists
+          itemName: item.name,
           quantity: item.quantity,
           price: item.price
         })),
-        totalAmount: total
+        totalAmount: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        deliveryAddress,
+        status: 'pending'
       };
 
-      console.log('Submitting order:', orderData);
-
-      const response = await axios.post('http://localhost:5000/api/orders/create', orderData, {
+      const response = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        timeout: 10000 // 10 second timeout
+        body: JSON.stringify(orderData)
       });
 
-      console.log('Order response:', response.data);
+      if (!response.ok) throw new Error('Failed to place order');
+
+      const result = await response.json();
       clearCart();
-      navigate('/order-confirmation', { state: { order: response.data } });
-    } catch (error) {
-      console.error('Full error details:', error);
-      
-      let errorMessage = 'Failed to place order. Please try again.';
-      
-      if (error.response) {
-        // Server responded with error status
-        console.error('Server error response:', error.response.data);
-        errorMessage = error.response.data.message || errorMessage;
-      } else if (error.request) {
-        // No response received
-        console.error('No response from server');
-        errorMessage = 'Server is not responding. Please try again later.';
-      } else {
-        // Request setup error
-        console.error('Request error:', error.message);
-      }
-      
-      setError(errorMessage);
+      navigate(`/orders/${result._id}`);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -79,62 +53,41 @@ const CheckoutPage = () => {
     <div className="p-4 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
       
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-          <p>{error}</p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block mb-2 font-medium">Delivery Address</label>
+          <textarea
+            value={deliveryAddress}
+            onChange={(e) => setDeliveryAddress(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
         </div>
-      )}
 
-      {cartItems.length === 0 ? (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-          <p>Your cart is currently empty.</p>
-          <button 
-            onClick={() => navigate('/menu')}
-            className="mt-2 text-blue-600 underline"
-          >
-            Browse Menu
-          </button>
+        <div className="bg-gray-50 p-4 rounded">
+          <h2 className="font-bold mb-2">Order Summary</h2>
+          {cartItems.map(item => (
+            <div key={item.name} className="flex justify-between py-2">
+              <span>{item.name} × {item.quantity}</span>
+              <span>${(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+          ))}
+          <div className="border-t pt-2 mt-2 font-bold flex justify-between">
+            <span>Total:</span>
+            <span>${cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}</span>
+          </div>
         </div>
-      ) : (
-        <>
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-3">Your Order:</h2>
-            <div className="space-y-4">
-              {cartItems.map((item, index) => (
-                <div key={`${item.name}-${index}`} className="flex justify-between items-start border-b pb-3">
-                  <div className="flex-1">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-gray-600">${item.price.toFixed(2)} each</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">× {item.quantity}</p>
-                    <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Total Amount:</h2>
-              <p className="text-xl font-bold">${total.toFixed(2)}</p>
-            </div>
-          </div>
+        {error && <p className="text-red-500">{error}</p>}
 
-          <button
-            onClick={handlePlaceOrder}
-            disabled={cartItems.length === 0 || isSubmitting}
-            className={`w-full py-3 px-4 rounded-lg font-bold text-white transition-colors ${
-              cartItems.length === 0 || isSubmitting
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-green-600 hover:bg-green-700'
-            }`}
-          >
-            {isSubmitting ? 'Processing...' : 'Place Order'}
-          </button>
-        </>
-      )}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded disabled:opacity-50"
+        >
+          {isSubmitting ? 'Placing Order...' : 'Place Order'}
+        </button>
+      </form>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MenuPage from './pages/MenuPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
-import OrdersPage from './pages/OrdersPage';
+import OrdersListPage from './pages/OrdersListPage';
 import OrderStatusPage from './pages/OrderStatusPage';
 import { CartProvider } from './components/CartContext';
 
@@ -15,7 +15,7 @@ function App() {
             <Route path="/" element={<MenuPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders" element={<OrdersListPage />} />
             <Route path="/orders/:id" element={<OrderStatusPage />} />
           
         </Routes>

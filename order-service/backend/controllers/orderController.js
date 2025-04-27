@@ -1,122 +1,155 @@
-const mongoose = require('mongoose');
-const Product = require('../models/Product'); // Ensure this import is present
-const OrderService = require('../services/orderService'); // Your service
+// controllers/orderController.js
+const Order = require('../models/orderModel'); // Assuming you have an Order model defined
 
-// In your order controller
-// In your backend order controller (likely orderController.js)
-exports.createOrder = async (req, res) => {
-    try {
-      console.log('Received order data:', req.body); // Add this line
-      
-      const order = new Order({
-        userId: req.body.userId || 'guest',
-        items: req.body.items,
-        totalAmount: req.body.totalAmount,
-        status: 'pending'
+// @desc    Create a new order
+// @route   POST /api/orders
+// @access  Public (in real app, would be private with auth)
+const createOrder = async (req, res, next) => {
+  try {
+    const { 
+      userId, 
+      restaurantId, 
+      restaurantName, 
+      items, 
+      totalAmount, 
+      deliveryAddress,
+      paymentId 
+    } = req.body;
+
+    // Validate required fields
+    if (!userId || !restaurantId || !restaurantName || !items || !totalAmount || !deliveryAddress) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Validate items array
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Items must be a non-empty array' });
+    }
+
+    const order = new Order({
+      userId,
+      restaurantId,
+      restaurantName,
+      items,
+      totalAmount,
+      deliveryAddress,
+      paymentId
+    });
+
+    const createdOrder = await order.save();
+    res.status(201).json(createdOrder);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get order by ID
+// @route   GET /api/orders/:id
+// @access  Public (in real app, would be private with auth)
+const getOrderById = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all orders for a user
+// @route   GET /api/orders/user/:userId
+// @access  Public (in real app, would be private with auth)
+const getOrdersByUser = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId })
+      .sort({ createdAt: -1 });
+    
+    res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all orders for a restaurant
+// @route   GET /api/orders/restaurant/:restaurantId
+// @access  Public (in real app, would be private with auth)
+const getOrdersByRestaurant = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ restaurantId: req.params.restaurantId })
+      .sort({ createdAt: -1 });
+    
+    res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update order status
+// @route   PUT /api/orders/:id/status
+// @access  Public (in real app, would be private with auth)
+// controllers/orderController.js
+const updateOrderStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    // Validate status
+    const validStatuses = ['pending', 'processing', 'completed', 'cancelled', 'delivered'];
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        message: 'Invalid status',
+        validStatuses: validStatuses
       });
-  
-      const savedOrder = await order.save();
-      console.log('Order saved:', savedOrder); // Add this line
-      res.status(201).json(savedOrder);
-    } catch (error) {
-      console.error('Order creation error:', error); // Add this line
-      res.status(500).json({ 
-        message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      });
     }
-  };
 
-// Get all orders for a specific user
-exports.getOrdersByUser = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const orders = await OrderService.getOrdersByUser(userId);
+    // Find and update the order
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true, runValidators: true }
+    );
 
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ message: "No orders found for this user" });
-        }
-
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
     }
+
+    res.json({
+      success: true,
+      data: order,
+      message: 'Order status updated successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// Get a specific order by its ID
-exports.getOrderById = async (req, res) => {
-    try {
-        const order = await OrderService.getOrderById(req.params.orderId);
-
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
-        }
-
-        res.json(order);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+// @desc    Delete an order
+// @route   DELETE /api/orders/:id
+// @access  Public (in real app, would be private with auth)
+const deleteOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
     }
+    
+    await order.remove();
+    res.json({ message: 'Order removed' });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// Update Order Status (e.g., "Pending" → "Shipped")
-exports.updateOrderStatus = async (req, res) => {
-    try {
-        const { status } = req.body;
-        const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
-
-        if (!validStatuses.includes(status)) {
-            return res.status(400).json({ message: "Invalid status value" });
-        }
-
-        const updatedOrder = await OrderService.updateOrderStatus(req.params.orderId, status);
-
-        if (!updatedOrder) {
-            return res.status(404).json({ message: "Order not found" });
-        }
-
-        res.json(updatedOrder);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-// Cancel Order (Only if it's still "Pending" or "Processing")
-exports.cancelOrder = async (req, res) => {
-    try {
-        const order = await OrderService.getOrderById(req.params.orderId);
-
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
-        }
-
-        if (["Shipped", "Delivered"].includes(order.status)) {
-            return res.status(400).json({ message: "Cannot cancel an order that has already been shipped or delivered" });
-        }
-
-        // Update status to "Cancelled"
-        const cancelledOrder = await OrderService.updateOrderStatus(req.params.orderId, "Cancelled");
-        res.json({ message: "Order has been cancelled", order: cancelledOrder });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-// Delete an Order (Only if it's not shipped or delivered)
-exports.deleteOrder = async (req, res) => {
-    try {
-        const order = await OrderService.getOrderById(req.params.orderId);
-
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
-        }
-
-        if (["Shipped", "Delivered"].includes(order.status)) {
-            return res.status(400).json({ message: "Cannot delete an order that has already been shipped or delivered" });
-        }
-
-        await OrderService.deleteOrder(req.params.orderId);
-        res.json({ message: "Order deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+module.exports = {
+  createOrder,
+  getOrderById,
+  getOrdersByUser,
+  getOrdersByRestaurant,
+  updateOrderStatus,
+  deleteOrder
 };
