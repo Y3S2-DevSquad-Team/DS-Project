@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["rejected", "pending", "registered"],
     },
+    businessCertificateUrl: {
+      type: String,
+      default: "",
+    },
 
     // Delivery only
     vehicleType: String,
@@ -116,6 +120,7 @@ userSchema.pre("save", function (next) {
     this.availability = undefined;
     this.assignedOrders = undefined;
     this.deliveryCompletedCount = undefined;
+    this.businessCertificateUrl = undefined;
   }
 
   if (this.role === "DeliveryPerson") {
@@ -157,7 +162,8 @@ userSchema.pre("save", function (next) {
     this.deliveryAddresses = undefined;
     this.favorites = undefined;
     this.orderHistory = undefined;
-    this.preferredPaymentMethod = undefined; 
+    this.preferredPaymentMethod = undefined;
+    this.businessCertificateUrl = undefined;
   }
 
   next();

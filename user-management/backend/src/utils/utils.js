@@ -3,12 +3,9 @@ const { ValidationFailureError } = require("./ErrorHandling/CustomErrors");
 
 exports.validate = (req, res, next) => {
   const errors = validationResult(req);
-
-  if (errors.isEmpty()) {
-    return next();
+  if (!errors.isEmpty()) {
+    const formatted = errors.array().map((err) => `${err.param}: ${err.msg}`);
+    return next(new ValidationFailureError(`Invalid value(s): ${formatted.join(", ")}`)); // ✅ proper error throwing
   }
-
-  const error = errors.array()[0];
-
-  return next(new ValidationFailureError(`${error.msg}`));
+  next(); // ✅ continue if no errors
 };

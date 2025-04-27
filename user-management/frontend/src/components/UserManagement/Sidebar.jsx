@@ -27,6 +27,12 @@ const Sidebar = ({ onSelectRole }) => {
         >
           Sign Up as Restaurant
         </button>
+        <button
+          onClick={() => onSelectRole("Login")}
+          className="bg-primary text-black font-bold py-2 px-4 rounded hover:bg-primaryDark transition"
+        >
+          Already have an account? Login
+        </button>
       </div>
     </div>
   );

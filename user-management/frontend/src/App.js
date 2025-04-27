@@ -4,8 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/UserManagement/Home";
 // import Home from "../src/pages/Home";
-import Login from "./pages/UserManagement/Login";
-import Signup from "./pages/UserManagement/Signup";
 import ErrorPage from "./pages/Errors/ServerError";
 import NotFoundPage from "./pages/Errors/NotFoundPage";
 
@@ -18,8 +16,6 @@ function App() {
       <div className="bg-secondary min-h-screen text-white">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/500" element={<ErrorPage />} />
           <Route path="*" element={<NotFoundPage />} />
           {/* <Route path="/restaurants" element={<Restaurants />} />

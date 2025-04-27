@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useInput } from "../../hooks/use-input";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useThunk } from "../../hooks/use-thunk";
 import { registerUser } from "../../store/thunks/userThunks";
+import axios from "axios";
 import showToast from "../../utils/toastNotifications";
 
 import {
@@ -48,13 +49,13 @@ const DeliveryPersonSignupForm = () => {
     hasError: confirmPasswordHasError,
   } = useInput("", (value) => isPasswordsMatch(password, value));
 
+  const [dialCode, setDialCode] = useState("+94");
   const {
-    value: phone,
-    handleInputChange: handlePhoneChange,
-    handleInputBlur: handlePhoneBlur,
-    hasError: phoneHasError,
+    value: phoneNumber,
+    handleInputChange: handlePhoneNumberChange,
+    handleInputBlur: handlePhoneNumberBlur,
+    hasError: phoneNumberHasError,
   } = useInput("", isValidNumber);
-
   const {
     value: vehicleType,
     handleInputChange: handleVehicleTypeChange,
@@ -76,6 +77,8 @@ const DeliveryPersonSignupForm = () => {
     hasError: nicHasError,
   } = useInput("", isNotEmpty);
 
+  const [businessCertificate, setBusinessCertificate] = useState(null);
+
   const isValid =
     username &&
     !usernameHasError &&
@@ -85,8 +88,8 @@ const DeliveryPersonSignupForm = () => {
     !passwordHasError &&
     confirmPassword &&
     !confirmPasswordHasError &&
-    phone &&
-    !phoneHasError &&
+    phoneNumber &&
+    !phoneNumberHasError &&
     vehicleType &&
     !vehicleTypeHasError &&
     licenseNumber &&
@@ -106,7 +109,7 @@ const DeliveryPersonSignupForm = () => {
       username,
       email,
       password,
-      phone,
+      phone: `${dialCode}${phoneNumber}`,
       vehicleType,
       licenseNumber,
       nic,
@@ -135,52 +138,129 @@ const DeliveryPersonSignupForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label>Username *</label>
-            <input className="form-input" value={username} onChange={handleUsernameChange} onBlur={handleUsernameBlur} />
-            {usernameHasError && <p className="text-red-500 text-sm">Username is required</p>}
+            <input
+              className="form-input"
+              value={username}
+              onChange={handleUsernameChange}
+              onBlur={handleUsernameBlur}
+            />
+            {usernameHasError && (
+              <p className="text-red-500 text-sm">Username is required</p>
+            )}
           </div>
           <div>
             <label>Email *</label>
-            <input type="email" className="form-input" value={email} onChange={handleEmailChange} onBlur={handleEmailBlur} />
-            {emailHasError && <p className="text-red-500 text-sm">Enter a valid email</p>}
+            <input
+              type="email"
+              className="form-input"
+              value={email}
+              onChange={handleEmailChange}
+              onBlur={handleEmailBlur}
+            />
+            {emailHasError && (
+              <p className="text-red-500 text-sm">Enter a valid email</p>
+            )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label>Password *</label>
-            <input type="password" className="form-input" value={password} onChange={handlePasswordChange} onBlur={handlePasswordBlur} />
-            {passwordHasError && <p className="text-red-500 text-sm">Strong password required</p>}
+            <input
+              type="password"
+              className="form-input"
+              value={password}
+              onChange={handlePasswordChange}
+              onBlur={handlePasswordBlur}
+            />
+            {passwordHasError && (
+              <p className="text-red-500 text-sm">Strong password required</p>
+            )}
           </div>
           <div>
             <label>Confirm Password *</label>
-            <input type="password" className="form-input" value={confirmPassword} onChange={handleConfirmPasswordChange} onBlur={handleConfirmPasswordBlur} />
-            {confirmPasswordHasError && <p className="text-red-500 text-sm">Passwords must match</p>}
+            <input
+              type="password"
+              className="form-input"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              onBlur={handleConfirmPasswordBlur}
+            />
+            {confirmPasswordHasError && (
+              <p className="text-red-500 text-sm">Passwords must match</p>
+            )}
           </div>
         </div>
 
         {/* Personal Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label>Phone *</label>
-            <input className="form-input" value={phone} onChange={handlePhoneChange} onBlur={handlePhoneBlur} />
-            {phoneHasError && <p className="text-red-500 text-sm">Enter a valid phone number</p>}
+          {/* Country Dial Code Dropdown */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">
+              Country Code *
+            </label>
+            <select
+              className="form-select w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+            >
+              <option value="">Select Country Code</option>
+              <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+              <option value="+1">🇺🇸 +1 (USA)</option>
+              <option value="+44">🇬🇧 +44 (UK)</option>
+              <option value="+61">🇦🇺 +61 (Australia)</option>
+              {/* ➔ You can add more countries if needed */}
+            </select>
+          </div>
+
+          {/* Phone Number Input */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">
+              Phone Number *
+            </label>
+            <input
+              type="text"
+              className="form-input w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              onBlur={handlePhoneNumberBlur}
+            />
           </div>
           <div>
             <label>Vehicle Type *</label>
-            <input className="form-input" value={vehicleType} onChange={handleVehicleTypeChange} onBlur={handleVehicleTypeBlur} />
-            {vehicleTypeHasError && <p className="text-red-500 text-sm">Required</p>}
+            <input
+              className="form-input"
+              value={vehicleType}
+              onChange={handleVehicleTypeChange}
+              onBlur={handleVehicleTypeBlur}
+            />
+            {vehicleTypeHasError && (
+              <p className="text-red-500 text-sm">Required</p>
+            )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label>License Number *</label>
-            <input className="form-input" value={licenseNumber} onChange={handleLicenseNumberChange} onBlur={handleLicenseNumberBlur} />
-            {licenseNumberHasError && <p className="text-red-500 text-sm">Required</p>}
+            <input
+              className="form-input"
+              value={licenseNumber}
+              onChange={handleLicenseNumberChange}
+              onBlur={handleLicenseNumberBlur}
+            />
+            {licenseNumberHasError && (
+              <p className="text-red-500 text-sm">Required</p>
+            )}
           </div>
           <div>
             <label>NIC *</label>
-            <input className="form-input" value={nic} onChange={handleNICChange} onBlur={handleNICBlur} />
+            <input
+              className="form-input"
+              value={nic}
+              onChange={handleNICChange}
+              onBlur={handleNICBlur}
+            />
             {nicHasError && <p className="text-red-500 text-sm">Required</p>}
           </div>
         </div>

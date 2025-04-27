@@ -17,6 +17,8 @@ const {
   sendWelcomeEmailToRestaurant,
 } = require("../utils/mailer");
 const { sendSMS } = require("../services/smsService");
+const { deleteLocalFile } = require("../utils/fileHandler");
+const { uploadToCloudinary } = require("../config/cloudinary");
 
 const generateTokens = async (user) => {
   const details = {

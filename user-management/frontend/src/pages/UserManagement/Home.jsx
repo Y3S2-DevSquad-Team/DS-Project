@@ -3,6 +3,7 @@ import Sidebar from "../../components/UserManagement/Sidebar";
 import CustomerSignupForm from "../../components/UserManagement/CustomerSignupForm";
 import DeliveryPersonSignupForm from "../../components/UserManagement/DeliveryPersonSignupForm";
 import RestaurantSignupForm from "../../components/UserManagement/RestaurantSignupForm";
+import LoginForm from "../../components/UserManagement/LoginForm";
 
 const Home = () => {
   const [activeRole, setActiveRole] = useState("Customer");
@@ -15,6 +16,8 @@ const Home = () => {
         return <DeliveryPersonSignupForm />;
       case "Restaurant":
         return <RestaurantSignupForm />;
+      case "Login":
+        return <LoginForm />;
       default:
         return null;
     }

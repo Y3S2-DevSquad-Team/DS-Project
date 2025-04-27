@@ -50,18 +50,19 @@ const CustomerSignupForm = () => {
     hasError: confirmPasswordHasError,
   } = useInput("", (value) => isPasswordsMatch(password, value));
 
-  const {
-    value: phone,
-    handleInputChange: handlePhoneChange,
-    handleInputBlur: handlePhoneBlur,
-    hasError: phoneHasError,
-  } = useInput("", isValidNumber);
-
   const [address, setAddress] = useState({
     label: "",
     address: "",
   });
   const [addressError, setAddressError] = useState("");
+
+  const [dialCode, setDialCode] = useState("+94");
+  const {
+    value: phoneNumber,
+    handleInputChange: handlePhoneNumberChange,
+    handleInputBlur: handlePhoneNumberBlur,
+    hasError: phoneNumberHasError,
+  } = useInput("", isValidNumber);
 
   const handleAddressChange = (e, field) => {
     const { value } = e.target;
@@ -87,8 +88,8 @@ const CustomerSignupForm = () => {
     !passwordHasError &&
     confirmPassword &&
     !confirmPasswordHasError &&
-    phone &&
-    !phoneHasError &&
+    phoneNumber &&
+    !phoneNumberHasError &&
     address.label &&
     address.address &&
     !addressError;
@@ -102,7 +103,7 @@ const CustomerSignupForm = () => {
       emailHasError ||
       passwordHasError ||
       confirmPasswordHasError ||
-      phoneHasError ||
+      phoneNumberHasError ||
       !isAddressValid
     ) {
       showToast("error", "Please fix validation errors before submitting");
@@ -113,7 +114,8 @@ const CustomerSignupForm = () => {
       username,
       email,
       password,
-      phone,
+      dialCode,
+      phone: `${dialCode}${phoneNumber}`,
       deliveryAddresses: [address],
     };
 
@@ -190,20 +192,43 @@ const CustomerSignupForm = () => {
             )}
           </div>
         </div>
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Country Dial Code Dropdown */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">
+              Country Code *
+            </label>
+            <select
+              className="form-select w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+            >
+              <option value="">Select Country Code</option>
+              <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+              <option value="+1">🇺🇸 +1 (USA)</option>
+              <option value="+44">🇬🇧 +44 (UK)</option>
+              <option value="+61">🇦🇺 +61 (Australia)</option>
+              {/* ➔ You can add more countries if needed */}
+            </select>
+          </div>
 
-        <div>
-          <label>Phone Number *</label>
-          <input
-            className="form-input"
-            value={phone}
-            onChange={handlePhoneChange}
-            onBlur={handlePhoneBlur}
-          />
-          {phoneHasError && (
-            <p className="text-red-500 text-sm">Enter a valid phone number</p>
-          )}
+          {/* Phone Number Input */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">
+              Phone Number *
+            </label>
+            <input
+              type="text"
+              className="form-input w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              onBlur={handlePhoneNumberBlur}
+            />
+          </div>
         </div>
-
+        {phoneNumberHasError && (
+          <p className="text-red-500 text-sm">Enter a valid phone number</p>
+        )}
         <hr className="border-gray-700 my-4" />
         <h3 className="text-lg font-semibold text-[#06C167]">
           Delivery Address

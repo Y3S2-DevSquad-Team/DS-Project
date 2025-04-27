@@ -48,11 +48,12 @@ const RestaurantSignupForm = () => {
     hasError: confirmPasswordHasError,
   } = useInput("", (value) => isPasswordsMatch(password, value));
 
+  const [dialCode, setDialCode] = useState("+94");
   const {
-    value: phone,
-    handleInputChange: handlePhoneChange,
-    handleInputBlur: handlePhoneBlur,
-    hasError: phoneHasError,
+    value: phoneNumber,
+    handleInputChange: handlePhoneNumberChange,
+    handleInputBlur: handlePhoneNumberBlur,
+    hasError: phoneNumberHasError,
   } = useInput("", isValidNumber);
 
   const {
@@ -109,8 +110,8 @@ const RestaurantSignupForm = () => {
     !passwordHasError &&
     confirmPassword &&
     !confirmPasswordHasError &&
-    phone &&
-    !phoneHasError &&
+    phoneNumber &&
+    !phoneNumberHasError &&
     restaurantName &&
     !restaurantNameHasError &&
     location &&
@@ -132,12 +133,11 @@ const RestaurantSignupForm = () => {
       showToast("error", "Please fix validation errors before submitting");
       return;
     }
-
     const payload = {
       username,
       email,
       password,
-      phone,
+      phone: `${dialCode}${phoneNumber}`,
       restaurantName,
       location,
       businessLicenseNumber,
@@ -222,18 +222,38 @@ const RestaurantSignupForm = () => {
             )}
           </div>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">
+              Country Code *
+            </label>
+            <select
+              className="form-select w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+            >
+              <option value="">Select Country Code</option>
+              <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+              <option value="+1">🇺🇸 +1 (USA)</option>
+              <option value="+44">🇬🇧 +44 (UK)</option>
+              <option value="+61">🇦🇺 +61 (Australia)</option>
+              {/* ➔ You can add more countries if needed */}
+            </select>
+          </div>
 
-        <div>
-          <label>Phone Number *</label>
-          <input
-            className="form-input"
-            value={phone}
-            onChange={handlePhoneChange}
-            onBlur={handlePhoneBlur}
-          />
-          {phoneHasError && (
-            <p className="text-red-500 text-sm">Valid phone required</p>
-          )}
+          {/* Phone Number Input */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">
+              Phone Number *
+            </label>
+            <input
+              type="text"
+              className="form-input w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              onBlur={handlePhoneNumberBlur}
+            />
+          </div>
         </div>
 
         {/* Restaurant Info */}
@@ -311,7 +331,6 @@ const RestaurantSignupForm = () => {
           value={bankDetails.branchCode}
           onChange={(e) => handleBankDetailsChange(e, "branchCode")}
         />
-
         {/* Submit Button */}
         <button
           type="submit"

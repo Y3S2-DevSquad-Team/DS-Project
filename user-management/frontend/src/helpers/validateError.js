@@ -1,10 +1,10 @@
 import { DEFAULT_ERROR, ERROR_CODES } from "../constants/constants";
 
 export function validateError(err, navigate) {
-  const errorCode = err.code || DEFAULT_ERROR.code;
+  const errorCode = err?.code || DEFAULT_ERROR.code;
 
   if (!ERROR_CODES[errorCode]) {
-    navigate("/500");
+    // ⚠ Instead of navigating here, just return the default error
     return {
       code: DEFAULT_ERROR.code,
       message: DEFAULT_ERROR.message,
@@ -12,7 +12,8 @@ export function validateError(err, navigate) {
   }
 
   const errorMessage =
-    err.message || ERROR_CODES[errorCode] || DEFAULT_ERROR.message;
+    err?.message || ERROR_CODES[errorCode] || DEFAULT_ERROR.message;
+
   return {
     code: errorCode,
     message: errorMessage,
