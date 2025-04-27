@@ -16,6 +16,9 @@ const {
   sendWelcomeEmailToDeliveryPerson,
   sendWelcomeEmailToRestaurant,
 } = require("../utils/mailer");
+const { sendSMS } = require("../services/smsService");
+const { deleteLocalFile } = require("../utils/fileHandler");
+const { uploadToCloudinary } = require("../config/cloudinary");
 
 const generateTokens = async (user) => {
   const details = {
@@ -145,10 +148,15 @@ exports.signupCustomer = async (req, res, next) => {
       deliveryAddresses,
     });
 
-    await sendWelcomeEmailToCustomer({
-      to: user.email,
-      username: user.username,
-    });
+    // await sendWelcomeEmailToCustomer({
+    //   to: user.email,
+    //   username: user.username,
+    // });
+
+    await sendSMS(
+      user.phone,
+      `Hello, ${user.username}! 🎉 Thanks for signing up with YumGo — your go-to app for quick, delicious, and affordable meals delivered right to your door 🍔🍟`
+    );
 
     const tokens = await generateTokens(user);
     return handleResponse(res, 201, "Customer signed up", { user, ...tokens });
@@ -197,10 +205,17 @@ exports.signupDeliveryPerson = async (req, res, next) => {
       licenseNumber,
       nic,
     });
+
     await sendWelcomeEmailToDeliveryPerson({
       to: user.email,
       username: user.username,
     });
+
+    await sendSMS(
+      user.phone,
+      `Welcome aboard, ${user.username}! 🚀 Thank you for joining the delivery team at YumGo! We are excited to have you onboard. With your help, we are bringing smiles and hot meals to hungry customers across the city. 🚴📦`
+    );
+
     const tokens = await generateTokens(user);
     return handleResponse(res, 201, "Delivery person signed up", {
       user,
@@ -262,10 +277,17 @@ exports.signupRestaurant = async (req, res, next) => {
       bankDetails,
       restaurantStatus: "pending",
     });
+
     await sendWelcomeEmailToRestaurant({
       to: user.email,
       username: user.username,
     });
+
+    await sendSMS(
+      user.phone,
+      `Welcome, ${user.username}! 👨‍🍳 We are thrilled to have your restaurant join YumGo. Get ready to serve up your delicious dishes to thousands of hungry customers. We shall grow together! 🔥🍔`
+    );
+
     const tokens = await generateTokens(user);
     return handleResponse(res, 201, "Restaurant signed up", {
       user,
