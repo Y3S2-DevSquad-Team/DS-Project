@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { registerUser } from "../thunks/userThunks";
+import { registerUser, loginUser } from "../thunks/userThunks";
 
 const initialState = {
   currentUser: null,
@@ -30,15 +30,15 @@ const userSlice = createSlice({
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         state.currentUser = user;
-      });
+      })
 
-    //   // Login User
-    //   .addCase(userLogin.fulfilled, (state, action) => {
-    //     const { accessToken, refreshToken, user } = action.payload.data;
-    //     localStorage.setItem("accessToken", accessToken);
-    //     localStorage.setItem("refreshToken", refreshToken);
-    //     state.currentUser = user;
-    //   })
+      // Login User
+      .addCase(loginUser.fulfilled, (state, action) => {
+        const { accessToken, refreshToken, user } = action.payload.data;
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        state.currentUser = user;
+      });
 
     // Update User
     //   .addCase(updateUser.fulfilled, (state, action) => {

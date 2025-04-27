@@ -6,7 +6,7 @@ import RestaurantSignupForm from "../../components/UserManagement/RestaurantSign
 import LoginForm from "../../components/UserManagement/LoginForm";
 
 const Home = () => {
-  const [activeRole, setActiveRole] = useState("Customer");
+  const [activeRole, setActiveRole] = useState("Login");
 
   const renderSignupForm = () => {
     switch (activeRole) {
