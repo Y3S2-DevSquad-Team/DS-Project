@@ -23,12 +23,12 @@ export default function PaymentRedirectPage() {
         const cartItems = JSON.parse(localStorage.getItem("checkoutCart"));
         const totalAmount = parseFloat(localStorage.getItem("checkoutTotalAmount"));
 
-        if (!userId || !cartItems || !restaurantId || !restaurantName || !deliveryAddress) {
+        if (!userId || !cartItems || !restaurantId || !restaurantName || !deliveryAddress || !deliveryCoords) {
           console.error("Missing required data for checkout.");
           return;
         }
 
-        // 1️⃣ Create Order First (sending order only)
+        // 1️⃣ Create Order First
         const createOrderResponse = await axios.post("http://localhost:8080/api/order/api/order", {
           userId,
           restaurantId,
@@ -41,7 +41,7 @@ export default function PaymentRedirectPage() {
           })),
           totalAmount,
           deliveryAddress,
-          deliveryCoords, // optional
+          deliveryCoords,
         });
 
         const createdOrder = createOrderResponse.data;
@@ -49,7 +49,14 @@ export default function PaymentRedirectPage() {
 
         console.log("[Checkout] Created Order ID:", createdOrderId);
 
-        // 2️⃣ Initiate Payment after Order created
+        // 2️⃣ Create Delivery for the new Order (🔥 NEW STEP)
+        await axios.post("http://localhost:4002/api/delivery/assign", {
+          orderId: createdOrderId,
+          customerLocation: deliveryCoords,
+        });
+        console.log("[Checkout] Delivery created successfully for order:", createdOrderId);
+
+        // 3️⃣ Initiate Payment
         const initiatePaymentResponse = await axios.post("http://localhost:8080/api/payment/api/payment/initiate", {
           orderId: createdOrderId,
           userId,
@@ -59,14 +66,13 @@ export default function PaymentRedirectPage() {
           email: userEmail || "test@example.com",
           phone: userPhone || "0770000000",
           address: deliveryAddress,
-          city: "Colombo", // You can make this dynamic later
+          city: "Colombo",
         });
 
         const { payhereURL, payload } = initiatePaymentResponse.data;
-
         console.log("[Checkout] Payment Payload prepared:", payload);
 
-        // 3️⃣ Auto-submit form to PayHere
+        // 4️⃣ Auto-submit form to PayHere
         const form = document.createElement("form");
         form.method = "POST";
         form.action = payhereURL;

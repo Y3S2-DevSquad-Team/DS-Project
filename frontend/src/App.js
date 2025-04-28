@@ -15,13 +15,16 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Customer Pages
 import CustomerProfile from "./pages/UserManagement/CustomerProfile";
-import CustomerOrdersPage from "./pages/customer/CustomerOrdersPage";
+import CustomerOrdersPage from "./pages/customer/MyOrdersPage";
 import SelectAddressPage from "./pages/SelectAddressPage";
 import MenuPage from "./pages/order/MenuPage";
 import CartPage from "./pages/Cart/CartPage";
 import CheckoutPage from "./pages/Cart/CheckoutPage";
 import OrdersListPage from "./pages/order/OrdersListPage";
 import OrderStatusPage from "./pages/order/OrderStatusPage";
+import TrackOrderPage from "./pages/customer/TrackOrderPage"; 
+import MyOrdersPage from "./pages/customer/MyOrdersPage";
+import OrderDetailsPage from "./pages/customer/OrderDetailsPage";
 
 // Delivery Person Pages
 import DeliveryPersonProfile from "./pages/UserManagement/DeliveryPersonProfile";
@@ -33,6 +36,9 @@ import UpdateDeliveryStatusPage from "./pages/delivery/UpdateDeliveryStatusPage"
 import NavigationPage from "./pages/driver/NavigationPage";
 import PickupPage from "./pages/driver/PickupPage";
 import DeliverToCustomerPage from "./pages/driver/DeliverToCustomerPage";
+
+import AvailableDeliveriesPage from "./pages/driver/AvailableDeliveriesPage";
+import MyDeliveriesPage from "./pages/driver/MyDeliveriesPage";
 
 // Restaurant Pages
 import RestaurantProfile from "./pages/UserManagement/RestaurantProfile";
@@ -68,6 +74,10 @@ function App() {
           <Route path='/checkout' element={<CheckoutPage />} />
           <Route path='/orders' element={<OrdersListPage />} />
           <Route path='/orders/:id' element={<OrderStatusPage />} />
+          <Route path="/track/:orderId" element={<TrackOrderPage />} />
+          <Route path='/customer/my-orders' element={<MyOrdersPage />} />
+          <Route path='/customer/track-order/:orderId' element={<OrderDetailsPage />} />
+
         {/* </Route> */}
 
         {/* Delivery Person Routes */}
@@ -80,6 +90,9 @@ function App() {
         <Route path='/driver/navigate/:id' element={<NavigationPage />} />
         <Route path='/driver/pickup/:id' element={<PickupPage />} />
         <Route path='/driver/deliver/:id' element={<DeliverToCustomerPage />} />
+
+        <Route path='/driver/available-deliveries' element={<AvailableDeliveriesPage />} />
+        <Route path='/driver/my-deliveries' element={<MyDeliveriesPage />} />
 
         {/* Restaurant Routes */}
         <Route path='/restaurant/profile' element={<RestaurantProfile />} />

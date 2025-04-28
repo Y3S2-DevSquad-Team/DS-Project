@@ -60,7 +60,7 @@ const LoginForm = () => {
         if (role === "Customer") {
           navigate("/");
         } else if (role === "DeliveryPerson") {
-          navigate("/delivery-person/profile");
+          navigate("/driver/available-deliveries");
         } else if (role === "Restaurant") {
           navigate("/restaurant/profile");
         } else {

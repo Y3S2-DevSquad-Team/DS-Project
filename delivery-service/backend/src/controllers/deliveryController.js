@@ -1,57 +1,89 @@
 const Delivery = require("../models/Delivery");
 const haversine = require("../utils/haversine");
 const statusCodes = require("../utils/statusCodes");
+const axios = require("axios");
+const SERVICE_URLS = require("../config/serviceUrls"); // Path where you keep service URLs
 
 const { assignDeliverySchema } = require("../validators/deliveryValidator");
 
-// Assign driver (mock logic for now)
+// 1️⃣ Create Delivery (unassigned)
 exports.assignDelivery = async (req, res) => {
   try {
-    // ✅ Validate input first
     const { error } = assignDeliverySchema.validate(req.body);
     if (error) return res.status(400).json({ message: error.details[0].message });
 
     const { orderId, customerLocation } = req.body;
 
-    // TODO: replace with real driver lookup
-    const mockDriverId = "64e1f3541d53270012345678";
-    const driverLocation = { lat: 6.902, lng: 79.858 };
-
     const delivery = await Delivery.create({
       orderId,
-      driverId: mockDriverId,
+      driverId: null, // no driver assigned yet
       customerLocation,
-      driverLocation,
-      status: "assigned",
+      driverLocation: { lat: null, lng: null },
+      status: "unassigned",
     });
 
-    console.log("[Delivery] Assigned delivery:", delivery._id);
-    res.status(201).json({ message: "Driver assigned", delivery });
+    console.log("[Delivery] Created available delivery:", delivery._id);
+    res.status(201).json({ message: "Delivery created successfully", delivery });
   } catch (err) {
     console.error("[Error] assignDelivery:", err);
-    res.status(500).json({ message: "Failed to assign delivery" });
+    res.status(500).json({ message: "Failed to create delivery" });
+  }
+};
+
+// 2️⃣ Rider accepts a delivery
+exports.acceptDelivery = async (req, res) => {
+  try {
+    const { driverId } = req.body; // ✅ Correct: read from body
+
+    const delivery = await Delivery.findById(req.params.id);
+    if (!delivery) return res.status(404).json({ message: "Delivery not found" });
+
+    if (delivery.status !== "unassigned") {
+      return res.status(400).json({ message: "Delivery already assigned" });
+    }
+
+    if (!driverId) {
+      return res.status(400).json({ message: "Missing driverId" });
+    }
+
+    delivery.driverId = driverId; // ✅ Set the driverId received
+    delivery.status = "assigned";
+
+    await delivery.save();
+
+    res.json({ message: "Delivery assigned successfully", delivery });
+  } catch (error) {
+    console.error("[Error] acceptDelivery:", error);
+    res.status(500).json({ message: "Failed to accept delivery" });
   }
 };
 
 // Update status (driver marks progress)
 exports.updateStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, lat, lng } = req.body;
     const { id } = req.params;
 
     const delivery = await Delivery.findById(id);
     if (!delivery) return res.status(404).json({ message: "Delivery not found" });
 
     delivery.status = status;
+
+    // ✅ If driver sent updated location, save it
+    if (lat !== undefined && lng !== undefined) {
+      delivery.driverLocation = { lat, lng };
+    }
+
     await delivery.save();
 
-    console.log(`[Delivery] Status updated: ${status}`);
+    console.log(`[Delivery] Status updated: ${status} with location update`);
     res.json({ message: "Status updated", delivery });
   } catch (err) {
     console.error("[Error] updateStatus:", err);
     res.status(500).json({ message: "Failed to update status" });
   }
 };
+
 
 // Update driver location
 exports.updateLocation = async (req, res) => {
@@ -115,27 +147,6 @@ exports.getAvailableDeliveries = async (req, res) => {
   }
 };
 
-// 2️⃣ Rider accepts a delivery
-exports.acceptDelivery = async (req, res) => {
-  try {
-    const delivery = await Delivery.findById(req.params.id);
-    if (!delivery) return res.status(404).json({ message: "Delivery not found" });
-
-    if (delivery.status !== "unassigned") {
-      return res.status(400).json({ message: "Delivery already assigned" });
-    }
-
-    delivery.driverId = req.user._id; // from token after auth integration
-    delivery.status = "assigned";
-
-    await delivery.save();
-    res.json({ message: "Delivery assigned successfully", delivery });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to accept delivery" });
-  }
-};
-
 // Mark Delivery as Picked Up
 exports.markPickedUp = async (req, res) => {
   try {
@@ -152,10 +163,6 @@ exports.markPickedUp = async (req, res) => {
   }
 };
 
-// Mark Delivery as Delivered
-const axios = require('axios');
-const SERVICE_URLS = require('../config/serviceUrls'); // Path where you keep service URLs
-
 exports.markDelivered = async (req, res) => {
   try {
     const delivery = await Delivery.findById(req.params.id);
@@ -164,16 +171,16 @@ exports.markDelivered = async (req, res) => {
     delivery.status = "delivered";
     await delivery.save();
 
-    console.log('[Delivery] Marked as delivered');
+    console.log("[Delivery] Marked as delivered");
 
     // 🚀 Update Order Status to Delivered
     try {
       await axios.put(`${SERVICE_URLS.ORDER_SERVICE}/${delivery.orderId}/status`, {
-        status: 'delivered'
+        status: "delivered",
       });
-      console.log('[Trigger] Order status updated to delivered');
+      console.log("[Trigger] Order status updated to delivered");
     } catch (err) {
-      console.error('[Error] Failed to update order after delivery', err.message);
+      console.error("[Error] Failed to update order after delivery", err.message);
     }
 
     res.json({ message: "Delivery completed", delivery });
@@ -182,4 +189,3 @@ exports.markDelivered = async (req, res) => {
     res.status(500).json({ message: "Failed to mark as delivered" });
   }
 };
-

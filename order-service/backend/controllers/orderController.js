@@ -33,18 +33,18 @@ const createOrder = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid restaurant ID" });
     }
 
-    // 🚀 Trigger Delivery Service (Assign driver)
+    // 🚀 Create Available Delivery (unassigned)
     try {
       await axios.post(`${SERVICE_URLS.DELIVERY_SERVICE}/assign`, {
         orderId: createdOrder._id,
         customerLocation: {
-          lat: 6.9271, // You should pass actual customer lat/lng from deliveryAddress if available
-          lng: 79.8612,
+          lat: deliveryCoords.lat,
+          lng: deliveryCoords.lng,
         },
       });
-      console.log("[Trigger] Delivery assigned for order");
+      console.log("[Trigger] Created delivery for order (unassigned)");
     } catch (err) {
-      console.error("[Error] Failed to assign delivery", err.message);
+      console.error("[Error] Failed to create delivery", err.message);
     }
 
     // 🚀 Trigger Payment Service (Create Payment)
@@ -71,9 +71,6 @@ const createOrder = async (req, res, next) => {
   }
 };
 
-// @desc    Get order by ID
-// @route   GET /api/orders/:id
-// @access  Public (in real app, would be private with auth)
 const getOrderById = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -88,9 +85,6 @@ const getOrderById = async (req, res, next) => {
   }
 };
 
-// @desc    Get all orders for a user
-// @route   GET /api/orders/user/:userId
-// @access  Public (in real app, would be private with auth)
 const getOrdersByUser = async (req, res, next) => {
   try {
     const orders = await Order.find({ userId: req.params.userId }).sort({ createdAt: -1 });
@@ -101,9 +95,6 @@ const getOrdersByUser = async (req, res, next) => {
   }
 };
 
-// @desc    Get all orders for a restaurant
-// @route   GET /api/orders/restaurant/:restaurantId
-// @access  Public (in real app, would be private with auth)
 const getOrdersByRestaurant = async (req, res, next) => {
   try {
     const orders = await Order.find({ restaurantId: req.params.restaurantId }).sort({ createdAt: -1 });
@@ -114,10 +105,6 @@ const getOrdersByRestaurant = async (req, res, next) => {
   }
 };
 
-// @desc    Update order status
-// @route   PUT /api/orders/:id/status
-// @access  Public (in real app, would be private with auth)
-// controllers/orderController.js
 const updateOrderStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
@@ -149,9 +136,6 @@ const updateOrderStatus = async (req, res, next) => {
   }
 };
 
-// @desc    Delete an order
-// @route   DELETE /api/orders/:id
-// @access  Public (in real app, would be private with auth)
 const deleteOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);

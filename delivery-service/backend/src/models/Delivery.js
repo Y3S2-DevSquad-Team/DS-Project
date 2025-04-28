@@ -5,35 +5,28 @@ const deliverySchema = new mongoose.Schema(
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Order" // even if Order is external, we keep logical reference
+      ref: "Order",
     },
-
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      ref: "User",
       default: null,
-      ref: "User" // reference from Auth Service
     },
-
     customerLocation: {
       lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
+      lng: { type: Number, required: true },
     },
-
     driverLocation: {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
     },
-
     status: {
       type: String,
-      enum: ["pending", "assigned", "accepted", "picked", "delivered", "cancelled"],
-      default: "pending"
-    }
+      enum: ["unassigned", "assigned", "accepted", "picked", "delivered", "cancelled"],
+      default: "unassigned", 
+    },
   },
-  {
-    timestamps: true // adds createdAt and updatedAt
-  }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Delivery", deliverySchema);
