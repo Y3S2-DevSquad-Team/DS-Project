@@ -1,65 +1,55 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import {
-  FaUser,
-  FaSignOutAlt,
-  FaHome,
-  FaClipboardList,
-  FaCog,
-} from "react-icons/fa";
+import { FaUser, FaSignOutAlt, FaHome, FaClipboardList, FaCog } from "react-icons/fa";
 
 const ProfileSidebar = ({ handleLogout }) => {
   const navigate = useNavigate();
-  const currentUser = useSelector((state) => state.user.currentUser); // Fetch the user
-  const userRole = currentUser?.role; // Extract the role
+  const currentUser = JSON.parse(localStorage.getItem("user")) || {};
 
-  // Function to determine profile path based on user role
+  const userRole = currentUser?.role;
+
+  // Determine profile path based on user role
   const getProfilePath = () => {
-    if (!userRole) return "/"; // fallback
+    if (!userRole) return "/";
     if (userRole === "Customer") return "/customer/profile";
     if (userRole === "DeliveryPerson") return "/delivery-person/profile";
     if (userRole === "Restaurant") return "/restaurant/profile";
-    return "/"; // fallback
+    return "/";
   };
 
   const menuItems = [
     { label: "Home", icon: <FaHome />, path: "/" },
-    { label: "My Profile", icon: <FaUser />, path: getProfilePath() }, // Dynamic path here
+    { label: "My Profile", icon: <FaUser />, path: getProfilePath() },
     { label: "My Orders", icon: <FaClipboardList />, path: "/orders" },
     { label: "Settings", icon: <FaCog />, path: "/settings" },
   ];
 
   return (
-    <div className="w-64 bg-[#0f0f0f] text-white flex flex-col py-8 px-4 border-r border-gray-800 fixed top-0 left-0 h-screen justify-between">
-      {/* Logo Section */}
+    <div className='flex flex-col justify-between w-64 min-h-screen px-4 py-8 text-gray-800 bg-white border-r border-gray-200 shadow-md'>
+      {/* Logo */}
       <div>
-        <div className="text-center text-3xl font-bold mb-10 text-[#06C167]">
-          YumGo
-        </div>
+        <div className='mb-10 text-3xl font-bold text-center text-green-600'>YumGo</div>
 
-        {/* Menu Items */}
-        <nav className="flex flex-col gap-4">
+        {/* Menu */}
+        <nav className='flex flex-col gap-4'>
           {menuItems.map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-3 p-3 rounded-md hover:bg-[#2a2a2a] cursor-pointer transition"
-              onClick={() => navigate(item.path)}
-            >
+              className='flex items-center gap-3 p-3 transition rounded-md cursor-pointer hover:bg-green-100'
+              onClick={() => navigate(item.path)}>
               {item.icon}
-              <span className="font-semibold">{item.label}</span>
+              <span className='font-semibold'>{item.label}</span>
             </div>
           ))}
         </nav>
       </div>
 
-      {/* Logout Button */}
+      {/* Logout */}
       <div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full justify-center text-white font-semibold p-3 rounded-md bg-gradient-to-l from-red-600 to-red-700 hover:opacity-90 transition"
-        >
-          <FaSignOutAlt className="text-xl" />
+          className='flex items-center justify-center w-full gap-2 p-3 font-semibold text-white transition bg-red-500 rounded-md hover:bg-red-600'>
+          <FaSignOutAlt className='text-xl' />
           Logout
         </button>
       </div>

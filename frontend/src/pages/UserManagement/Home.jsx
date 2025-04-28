@@ -24,9 +24,9 @@ const Home = () => {
   };
 
   return (
-    <div className="flex h-screen bg-darkBg text-white">
+    <div className="flex min-h-screen text-gray-800 bg-gray-100">
       <Sidebar onSelectRole={setActiveRole} />
-      <div className="flex-1 overflow-y-auto">{renderSignupForm()}</div>
+      <div className="flex-1 p-6 overflow-y-auto">{renderSignupForm()}</div>
     </div>
   );
 };

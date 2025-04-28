@@ -1,36 +1,51 @@
 const Payment = require("../models/Payment");
 const crypto = require("crypto");
 const { validationResult } = require("express-validator");
-const { MERCHANT_SECRET } = require("../config/payhereConfig");
+const { MERCHANT_ID, MERCHANT_SECRET, CLIENT_URL, SERVER_URL, PAYHERE_URL } = require("../config/payhereConfig");
 const verifySignature = require("../utils/verifySignature");
+const axios = require("axios");
+const SERVICE_URLS = require("../config/serviceUrls");
 
+function generatePayHereHash({ merchant_id, order_id, amount, currency, merchant_secret }) {
+  const formattedAmount = parseFloat(amount).toFixed(2); // Always 2 decimals
+  const hashedSecret = crypto.createHash('md5').update(merchant_secret).digest('hex').toUpperCase();
+  const baseString = merchant_id + order_id + formattedAmount + currency + hashedSecret;
+  const hash = crypto.createHash('md5').update(baseString).digest('hex').toUpperCase();
+  return hash;
+}
 
-// 2️⃣ Handle PayHere callback
 exports.handleCallback = async (req, res) => {
   try {
     const callbackData = req.body;
 
+    
     const isValid = verifySignature(callbackData, MERCHANT_SECRET);
     if (!isValid) {
       console.warn("[PayHere] Invalid signature detected");
       return res.status(400).json({ message: "Invalid signature" });
     }
 
-    const { order_id, payment_id, status_code, payment_method, status_message, card_holder_name, paid_at } = callbackData;
+    const { order_id, payment_id, status_code } = callbackData;
 
     const payment = await Payment.findOne({ orderId: order_id });
     if (!payment) return res.status(404).json({ message: "Payment record not found" });
 
     payment.status = status_code === "2" ? "success" : status_code === "0" ? "pending" : status_code === "-1" ? "cancelled" : "failed";
 
-    payment.payherePaymentId = payment_id;
-    payment.method = payment_method;
-    payment.cardHolderName = card_holder_name;
-    payment.transactionDate = paid_at || new Date();
-    payment.payhereRaw = callbackData;
-
     await payment.save();
     console.log(`[Payment] Updated status: ${payment.status}`);
+
+    // If Payment Success, Update Order Status
+    if (payment.status === "success") {
+      try {
+        await axios.put(`${SERVICE_URLS.ORDER_SERVICE}/${payment.orderId}/status`, {
+          status: "processing",
+        });
+        console.log("[Trigger] Order status updated to processing");
+      } catch (err) {
+        console.error("[Error] Failed to update order after payment", err.message);
+      }
+    }
 
     res.status(200).json({ message: "Callback processed" });
   } catch (err) {
@@ -60,24 +75,14 @@ exports.getPaymentStatus = async (req, res) => {
   }
 };
 
-
 exports.initiatePayment = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
-    const {
-      orderId,
-      userId,
-      amount,
-      first_name,
-      last_name,
-      email,
-      phone,
-      address,
-      city,
-    } = req.body;
+    const { orderId, userId, amount, first_name, last_name, email, phone, address, city } = req.body;
 
+    // 1️⃣ Create Payment record in DB
     const payment = await Payment.create({
       orderId,
       userId,
@@ -85,27 +90,50 @@ exports.initiatePayment = async (req, res) => {
       status: "pending",
     });
 
-    const paymentData = {
-      merchant_id: process.env.MERCHANT_ID,
-      return_url: `${process.env.CLIENT_URL}/payment/success`,
-      cancel_url: `${process.env.CLIENT_URL}/payment/cancel`,
-      notify_url: `${process.env.SERVER_URL}/api/payment/callback`,
+    // 2️⃣ Prepare PayHere payload
+    const merchant_id = MERCHANT_ID;
+    const return_url = `${CLIENT_URL}/payment/success`;
+    const cancel_url = `${CLIENT_URL}/payment/cancel`;
+    const notify_url = `${SERVER_URL}/api/payment/callback`;
+    const items = "Delivery Order";
+    const currency = "LKR";
+    const country = "Sri Lanka";
+
+    // 3️⃣ Generate HASH for security
+    const hash = generatePayHereHash({
+      merchant_id,
       order_id: orderId,
-      items: "Delivery Order",
-      currency: "LKR",
-      amount: amount,
+      amount,
+      currency,
+      merchant_secret: MERCHANT_SECRET,
+    });
+
+    // 4️⃣ Build payload with hash included
+    const paymentData = {
+      merchant_id,
+      return_url,
+      cancel_url,
+      notify_url,
+      order_id: orderId,
+      items,
+      currency,
+      amount: parseFloat(amount).toFixed(2),
       first_name,
       last_name,
       email,
       phone,
       address,
       city,
-      country: "Sri Lanka",
+      country,
+      hash, // 🔥 Important: Hash now included
     };
 
+    console.log("[Payment Initiate] PaymentData Sent:", paymentData);
+
+    // 5️⃣ Respond to frontend
     res.status(200).json({
       message: "Redirect to PayHere",
-      payhereURL: "https://sandbox.payhere.lk/pay/checkout",
+      payhereURL: PAYHERE_URL,
       payload: paymentData,
     });
   } catch (err) {
@@ -113,7 +141,6 @@ exports.initiatePayment = async (req, res) => {
     res.status(500).json({ message: "Failed to initiate payment" });
   }
 };
-
 
 // Admin - Get All Payments
 exports.getAllPayments = async (req, res) => {

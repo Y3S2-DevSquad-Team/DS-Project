@@ -33,9 +33,9 @@ const DeliveryPersonProfile = () => {
         username: res.data.data.username,
         email: res.data.data.email,
         phone: res.data.data.phone,
-        vehicleType: res.data.data.vehicleType,
-        licenseNumber: res.data.data.licenseNumber,
-        nic: res.data.data.nic,
+        vehicleType: res.data.data.vehicleType || "",
+        licenseNumber: res.data.data.licenseNumber || "",
+        nic: res.data.data.nic || "",
       });
     } catch (error) {
       console.error(error);
@@ -65,81 +65,61 @@ const DeliveryPersonProfile = () => {
   };
 
   if (!userData) {
-    return <div className="text-center text-white mt-10">Loading...</div>;
+    return <div className='mt-10 text-center text-gray-800'>Loading...</div>;
   }
 
   return (
     <>
       {/* Sidebar */}
-      <div className="fixed top-0 left-0 h-screen w-64">
+      <div className='fixed top-0 left-0 w-64 h-screen'>
         <ProfileSidebar handleLogout={handleLogout} />
       </div>
 
       {/* Main Content */}
-      <div className="ml-64 min-h-screen bg-[#f3f4f6] p-10 overflow-y-auto">
-        <div className="bg-white rounded-lg shadow-md p-8 w-full">
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative">
-              <img
-                src={userAvatar}
-                alt="Profile"
-                className="w-24 h-24 rounded-full object-cover"
-              />
+      <div className='min-h-screen p-10 ml-64 overflow-y-auto bg-gray-100'>
+        <div className='w-full p-8 bg-white rounded-lg shadow-md'>
+          <div className='flex flex-col items-center mb-8'>
+            <div className='relative'>
+              <img src={userAvatar} alt='Profile' className='object-cover w-24 h-24 rounded-full' />
               {isEditing && (
-                <div
-                  className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 cursor-pointer"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  <TbEdit className="text-white" />
+                <div className='absolute bottom-0 right-0 p-1 bg-green-500 rounded-full cursor-pointer' onClick={() => fileInputRef.current.click()}>
+                  <TbEdit className='text-white' />
                 </div>
               )}
-              <input ref={fileInputRef} type="file" className="hidden" />
+              <input ref={fileInputRef} type='file' className='hidden' />
             </div>
-            <h2 className="text-2xl font-bold mt-4 text-[#06C167]">
-              {form.username}
-            </h2>
-            <p className="text-gray-600">Delivery Person</p>
+            <h2 className='mt-4 text-2xl font-bold text-green-600'>{form.username}</h2>
+            <p className='text-gray-600'>Delivery Person</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             {Object.entries(form).map(([key, value]) => (
               <div key={key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
-                  {key.replace(/([A-Z])/g, " $1")}
-                </label>
+                <label className='block mb-1 text-sm font-medium text-gray-700 capitalize'>{key.replace(/([A-Z])/g, " $1")}</label>
                 <input
-                  type="text"
+                  type='text'
                   name={key}
                   value={value}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#06C167] text-gray-800 disabled:bg-gray-100"
+                  className='w-full px-3 py-2 text-gray-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100'
                 />
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end gap-4 mt-8">
+          <div className='flex justify-end gap-4 mt-8'>
             {isEditing ? (
               <>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md"
-                >
+                <button onClick={() => setIsEditing(false)} className='px-6 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600'>
                   Cancel
                 </button>
-                <button
-                  onClick={handleSave}
-                  className="bg-[#06C167] hover:bg-[#04894e] text-white px-6 py-2 rounded-md"
-                >
+                <button onClick={handleSave} className='px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600'>
                   Save
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="bg-[#06C167] hover:bg-[#04894e] text-white px-6 py-2 rounded-md"
-              >
+              <button onClick={() => setIsEditing(true)} className='px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600'>
                 Edit Info
               </button>
             )}

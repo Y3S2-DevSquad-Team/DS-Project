@@ -45,19 +45,8 @@ router.post("/test-upload", upload.single("file"), async (req, res, next) => {
   }
 });
 
-router.post(
-  "/signup/customer",
-  customerSignupValidator,
-  validate,
-  signupCustomer
-);
-router.post(
-  "/signup/delivery",
-  upload.single("businessCertificate"),
-  deliverySignupValidator,
-  validate,
-  signupDeliveryPerson
-);
+router.post("/signup/customer", customerSignupValidator, validate, signupCustomer);
+router.post("/signup/delivery", upload.single("businessCertificate"), deliverySignupValidator, validate, signupDeliveryPerson);
 router.post(
   "/signup/restaurant",
   upload.single("businessCertificate"),
@@ -70,14 +59,8 @@ router.post("/login", loginValidator, validate, loginUser);
 
 router.get("/", authToken, getUserProfile);
 
-router.put(
-  "/",
-  authToken,
-  restrictTo("User"),
-  updateUserValidator,
-  validate,
-  updateUser
-);
-router.delete("/", authToken, restrictTo("User"), deleteUser);
+router.put("/", authToken, restrictTo("Customer", "DeliveryPerson", "Restaurant", "Admin"), updateUserValidator, validate, updateUser);
+
+router.delete("/", authToken, restrictTo("Customer", "DeliveryPerson", "Restaurant", "Admin"), deleteUser);
 
 module.exports = router;

@@ -104,7 +104,6 @@ exports.getDeliveriesForDriver = async (req, res) => {
   }
 };
 
-
 // 1️⃣ Get all available deliveries (unassigned)
 exports.getAvailableDeliveries = async (req, res) => {
   try {
@@ -137,7 +136,6 @@ exports.acceptDelivery = async (req, res) => {
   }
 };
 
-
 // Mark Delivery as Picked Up
 exports.markPickedUp = async (req, res) => {
   try {
@@ -154,8 +152,10 @@ exports.markPickedUp = async (req, res) => {
   }
 };
 
-
 // Mark Delivery as Delivered
+const axios = require('axios');
+const SERVICE_URLS = require('../config/serviceUrls'); // Path where you keep service URLs
+
 exports.markDelivered = async (req, res) => {
   try {
     const delivery = await Delivery.findById(req.params.id);
@@ -164,9 +164,22 @@ exports.markDelivered = async (req, res) => {
     delivery.status = "delivered";
     await delivery.save();
 
+    console.log('[Delivery] Marked as delivered');
+
+    // 🚀 Update Order Status to Delivered
+    try {
+      await axios.put(`${SERVICE_URLS.ORDER_SERVICE}/${delivery.orderId}/status`, {
+        status: 'delivered'
+      });
+      console.log('[Trigger] Order status updated to delivered');
+    } catch (err) {
+      console.error('[Error] Failed to update order after delivery', err.message);
+    }
+
     res.json({ message: "Delivery completed", delivery });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to mark as delivered" });
   }
 };
+

@@ -7,11 +7,15 @@ import "./index.css";
 import App from "./App";
 import { store } from "./store"; // Make sure you export this from `store/index.js`
 
+import { CartProvider } from "./contexts/CartContext"; // Import your CartProvider
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <React.StrictMode>
-      <App />
+      <CartProvider>
+        <App />
+      </CartProvider>
       <ToastContainer autoClose={2000} />
     </React.StrictMode>
   </Provider>

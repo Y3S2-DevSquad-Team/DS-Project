@@ -3,12 +3,14 @@ const mongoose = require("mongoose");
 const paymentSchema = new mongoose.Schema(
   {
     orderId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "Order", // even if Order is external, we keep logical reference
     },
     userId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true, // 🔄 Will use Auth service in the future
+      ref: "User", // reference from Auth Service
     },
     amount: {
       type: Number,

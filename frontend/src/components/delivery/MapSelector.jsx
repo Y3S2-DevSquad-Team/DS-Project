@@ -6,7 +6,9 @@ const libraries = ["places"];
 const containerStyle = {
   width: "100%",
   height: "400px",
-  borderRadius: "12px",
+  borderRadius: "16px",
+  overflow: "hidden",
+  boxShadow: "0 0 10px rgba(0,0,0,0.1)",
 };
 
 const defaultCenter = { lat: 6.9271, lng: 79.8612 };
@@ -22,7 +24,7 @@ export default function MapSelector({ onLocationSelect = () => {}, showMarker = 
   const mapRef = useRef();
   const autoRef = useRef();
 
-  // When clicking on map
+  // Handle click on map
   const handleClick = (e) => {
     const coords = {
       lat: e.latLng.lat(),
@@ -32,7 +34,7 @@ export default function MapSelector({ onLocationSelect = () => {}, showMarker = 
     onLocationSelect(coords);
   };
 
-  // When searching via Autocomplete
+  // Handle place autocomplete
   const handlePlaceChange = () => {
     const place = autoRef.current.getPlace();
     if (!place.geometry) return;
@@ -46,7 +48,7 @@ export default function MapSelector({ onLocationSelect = () => {}, showMarker = 
     mapRef.current.panTo(coords);
   };
 
-  // When clicking "Use My Location"
+  // Use My Location button
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
@@ -73,17 +75,19 @@ export default function MapSelector({ onLocationSelect = () => {}, showMarker = 
   if (!isLoaded) return <p className='text-gray-700'>Loading map...</p>;
 
   return (
-    <div className='relative'>
-      {/* 🔍 Autocomplete Search Input */}
-      <Autocomplete onLoad={(ref) => (autoRef.current = ref)} onPlaceChanged={handlePlaceChange}>
-        <input
-          type='text'
-          placeholder='Search location...'
-          className='absolute z-10 px-4 py-2 text-black rounded-md shadow-md left-4 top-4 w-[280px] focus:outline-none'
-        />
-      </Autocomplete>
+    <div className='relative w-full h-[450px] mt-4 rounded-xl overflow-hidden shadow-lg bg-white'>
+      {/* Autocomplete Search */}
+      <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-[90%] max-w-md'>
+        <Autocomplete onLoad={(ref) => (autoRef.current = ref)} onPlaceChanged={handlePlaceChange}>
+          <input
+            type='text'
+            placeholder='Search location...'
+            className='w-full px-4 py-3 text-gray-800 bg-white border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-500'
+          />
+        </Autocomplete>
+      </div>
 
-      {/* 🗺 Google Map */}
+      {/* Google Map */}
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={selected || defaultCenter}
@@ -93,10 +97,10 @@ export default function MapSelector({ onLocationSelect = () => {}, showMarker = 
         {showMarker && selected && <Marker position={selected} />}
       </GoogleMap>
 
-      {/* 📍 Floating "My Location" Button */}
+      {/* Use My Location Button */}
       <button
         onClick={handleUseMyLocation}
-        className='absolute z-10 px-4 py-2 text-white transition bg-blue-600 rounded-full shadow bottom-4 right-4 hover:bg-blue-700'>
+        className='absolute px-5 py-3 font-semibold text-white transition-all bg-green-500 rounded-full shadow-lg bottom-4 right-4 hover:bg-green-600'>
         📍 Use My Location
       </button>
     </div>

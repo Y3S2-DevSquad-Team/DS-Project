@@ -18,4 +18,10 @@ app.get("/", (req, res) => {
 app.use("/api/delivery", deliveryRoutes);
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 4002;
+app.listen(PORT, () => {
+  console.log(`[Server] Delivery Service running on port ${PORT}`);
+});
+
+
 module.exports = app; // ✅ Export Express app

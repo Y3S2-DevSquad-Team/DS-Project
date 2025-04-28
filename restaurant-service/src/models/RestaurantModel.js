@@ -31,14 +31,10 @@ const RestaurantSchema = new mongoose.Schema({
     sunday: { type: Boolean, default: true }
   },
   ownerId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', 
     required: true
   },
-  /* ownerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assuming your user model is named 'User'
-    required: true
-  },*/
 
   // Add reference to orders
   currentOrders: [{

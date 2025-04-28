@@ -1,4 +1,4 @@
-import MapSelector from "../components/MapSelector";
+import MapSelector from "../components/Delivery/MapSelector";
 
 export default function SelectAddressPage() {
   const handleLocation = (location) => {

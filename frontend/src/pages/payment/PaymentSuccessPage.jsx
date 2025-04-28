@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useCart } from "../../contexts/CartContext";
 
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { clearCart } = useCart();
   const [status, setStatus] = useState("loading");
 
   const orderId = searchParams.get("order_id");
@@ -12,9 +14,16 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await axios.get(`http://localhost:4003/api/payment/status/${orderId}`);
+        const res = await axios.get(`http://localhost:8080/api/payment/api/payment/status/${orderId}`);
         if (res.data.status === "success") {
           setStatus("success");
+
+          // ✅ Clear cart and local storage
+          clearCart();
+          localStorage.removeItem("checkoutAddress");
+          localStorage.removeItem("checkoutCoords");
+          localStorage.removeItem("checkoutCart");
+          localStorage.removeItem("checkoutTotalAmount");
         } else {
           setStatus("pending");
         }
@@ -25,33 +34,43 @@ export default function PaymentSuccessPage() {
     };
 
     if (orderId) fetchStatus();
-  }, [orderId]);
+  }, [orderId, navigate, clearCart]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-white bg-secondary">
-      {status === "loading" && <p>Verifying your payment...</p>}
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-gray-800 bg-gray-100">
+      {status === "loading" && <p className="text-lg font-semibold">Verifying your payment...</p>}
+
       {status === "success" && (
         <>
-          <h2 className="mb-4 text-2xl font-bold text-green-400">✅ Payment Successful!</h2>
-          <p>Your order has been confirmed.</p>
+          <h2 className="mb-4 text-3xl font-bold text-green-600">✅ Payment Successful!</h2>
+          <p className="mb-6 text-gray-600">Your order has been placed successfully. Thank you for choosing YumGo!</p>
+
           <button
-            className="px-5 py-2 mt-6 rounded bg-primary hover:bg-green-600"
             onClick={() => navigate("/customer/orders")}
+            className="px-6 py-3 font-bold text-white transition bg-green-500 rounded-md hover:bg-green-600"
           >
             View My Orders
           </button>
         </>
       )}
+
       {status === "pending" && (
         <>
-          <h2 className="mb-4 text-2xl font-bold text-yellow-300">⏳ Payment Pending</h2>
-          <p>We're waiting for confirmation from the bank.</p>
+          <h2 className="mb-4 text-3xl font-bold text-yellow-500">⏳ Payment Pending</h2>
+          <p className="text-gray-600">We are still verifying your payment. Please wait a moment.</p>
         </>
       )}
+
       {status === "error" && (
         <>
-          <h2 className="mb-4 text-2xl font-bold text-red-400">❌ Payment Failed</h2>
-          <p>Please try again or contact support.</p>
+          <h2 className="mb-4 text-3xl font-bold text-red-500">❌ Payment Failed</h2>
+          <p className="text-gray-600">Something went wrong. Please try again or contact support.</p>
+          <button
+            onClick={() => navigate("/cart")}
+            className="px-6 py-3 mt-6 font-bold text-white transition bg-green-500 rounded-md hover:bg-green-600"
+          >
+            Retry Payment
+          </button>
         </>
       )}
     </div>

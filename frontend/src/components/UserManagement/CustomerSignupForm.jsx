@@ -1,60 +1,34 @@
-// File: components/CustomerSignupForm.jsx
 import React, { useState } from "react";
-import axios from "axios";
 import { useInput } from "../../hooks/use-input";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useThunk } from "../../hooks/use-thunk";
 import { registerUser } from "../../store/thunks/userThunks";
 import showToast from "../../utils/toastNotifications";
-
-import {
-  isEmail,
-  isNotEmpty,
-  isPasswordStrong,
-  isPasswordsMatch,
-  isValidNumber,
-} from "../../utils/Validation";
+import { isEmail, isNotEmpty, isPasswordStrong, isPasswordsMatch, isValidNumber } from "../../utils/Validation";
 
 const CustomerSignupForm = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [doRegisterUser, isRegisteringUser] = useThunk(registerUser);
 
-  // Form fields using useInput
   const {
     value: username,
     handleInputChange: handleUsernameChange,
     handleInputBlur: handleUsernameBlur,
     hasError: usernameHasError,
   } = useInput("", isNotEmpty);
-
-  const {
-    value: email,
-    handleInputChange: handleEmailChange,
-    handleInputBlur: handleEmailBlur,
-    hasError: emailHasError,
-  } = useInput("", isEmail);
-
+  const { value: email, handleInputChange: handleEmailChange, handleInputBlur: handleEmailBlur, hasError: emailHasError } = useInput("", isEmail);
   const {
     value: password,
     handleInputChange: handlePasswordChange,
     handleInputBlur: handlePasswordBlur,
     hasError: passwordHasError,
   } = useInput("", isPasswordStrong);
-
   const {
     value: confirmPassword,
     handleInputChange: handleConfirmPasswordChange,
     handleInputBlur: handleConfirmPasswordBlur,
     hasError: confirmPasswordHasError,
   } = useInput("", (value) => isPasswordsMatch(password, value));
-
-  const [address, setAddress] = useState({
-    label: "",
-    address: "",
-  });
-  const [addressError, setAddressError] = useState("");
 
   const [dialCode, setDialCode] = useState("+94");
   const {
@@ -64,14 +38,11 @@ const CustomerSignupForm = () => {
     hasError: phoneNumberHasError,
   } = useInput("", isValidNumber);
 
-  const handleAddressChange = (e, field) => {
-    const { value } = e.target;
-    setAddress((prev) => ({ ...prev, [field]: value }));
-  };
+  const [address, setAddress] = useState({ label: "", address: "" });
+  const [addressError, setAddressError] = useState("");
 
   const validateAddress = () => {
-    const { label, address: addrValue } = address;
-    if (!label || !address) {
+    if (!address.label || !address.address) {
       setAddressError("Complete delivery address is required");
       return false;
     }
@@ -94,21 +65,13 @@ const CustomerSignupForm = () => {
     address.address &&
     !addressError;
 
+  const handleAddressChange = (e, field) => {
+    setAddress((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isAddressValid = validateAddress();
-
-    if (
-      usernameHasError ||
-      emailHasError ||
-      passwordHasError ||
-      confirmPasswordHasError ||
-      phoneNumberHasError ||
-      !isAddressValid
-    ) {
-      showToast("error", "Please fix validation errors before submitting");
-      return;
-    }
+    if (!validateAddress()) return;
 
     const payload = {
       username,
@@ -133,133 +96,128 @@ const CustomerSignupForm = () => {
   };
 
   return (
-    <div className="p-6 bg-[#121212] text-white w-full h-full">
-      <h2 className="text-xl font-bold mb-4 text-[#06C167]">Customer Signup</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div className='flex items-center justify-center min-h-screen text-gray-800 bg-gray-100'>
+      <form onSubmit={handleSubmit} className='w-full max-w-2xl p-8 space-y-6 bg-white rounded-lg shadow-lg'>
+        <h2 className='mb-4 text-2xl font-bold text-center text-green-600'>Customer Signup</h2>
+
+        {/* Username & Email */}
+        <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
           <div>
-            <label>Username *</label>
+            <label className='block mb-1 text-sm font-semibold'>Username *</label>
             <input
-              className="form-input"
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
               value={username}
               onChange={handleUsernameChange}
               onBlur={handleUsernameBlur}
+              placeholder='Enter username'
             />
-            {usernameHasError && (
-              <p className="text-red-500 text-sm">Username is required</p>
-            )}
+            {usernameHasError && <p className='mt-1 text-sm text-red-500'>Username is required</p>}
           </div>
+
           <div>
-            <label>Email *</label>
+            <label className='block mb-1 text-sm font-semibold'>Email *</label>
             <input
-              type="email"
-              className="form-input"
+              type='email'
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
               value={email}
               onChange={handleEmailChange}
               onBlur={handleEmailBlur}
+              placeholder='Enter email'
             />
-            {emailHasError && (
-              <p className="text-red-500 text-sm">Enter a valid email</p>
-            )}
+            {emailHasError && <p className='mt-1 text-sm text-red-500'>Enter a valid email</p>}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Password & Confirm Password */}
+        <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
           <div>
-            <label>Password *</label>
+            <label className='block mb-1 text-sm font-semibold'>Password *</label>
             <input
-              type="password"
-              className="form-input"
+              type='password'
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
               value={password}
               onChange={handlePasswordChange}
               onBlur={handlePasswordBlur}
+              placeholder='Enter password'
             />
-            {passwordHasError && (
-              <p className="text-red-500 text-sm">Strong password required</p>
-            )}
+            {passwordHasError && <p className='mt-1 text-sm text-red-500'>Strong password required</p>}
           </div>
+
           <div>
-            <label>Confirm Password *</label>
+            <label className='block mb-1 text-sm font-semibold'>Confirm Password *</label>
             <input
-              type="password"
-              className="form-input"
+              type='password'
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
               onBlur={handleConfirmPasswordBlur}
+              placeholder='Re-enter password'
             />
-            {confirmPasswordHasError && (
-              <p className="text-red-500 text-sm">Passwords must match</p>
-            )}
+            {confirmPasswordHasError && <p className='mt-1 text-sm text-red-500'>Passwords must match</p>}
           </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-3">
-          {/* Country Dial Code Dropdown */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-white mb-1">
-              Country Code *
-            </label>
+
+        {/* Phone Number */}
+        <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+          <div>
+            <label className='block mb-1 text-sm font-semibold'>Country Code *</label>
             <select
-              className="form-select w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
               value={dialCode}
-              onChange={(e) => setDialCode(e.target.value)}
-            >
-              <option value="">Select Country Code</option>
-              <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
-              <option value="+1">🇺🇸 +1 (USA)</option>
-              <option value="+44">🇬🇧 +44 (UK)</option>
-              <option value="+61">🇦🇺 +61 (Australia)</option>
-              {/* ➔ You can add more countries if needed */}
+              onChange={(e) => setDialCode(e.target.value)}>
+              <option value='+94'>🇱🇰 +94 (Sri Lanka)</option>
+              <option value='+1'>🇺🇸 +1 (USA)</option>
+              <option value='+44'>🇬🇧 +44 (UK)</option>
+              <option value='+61'>🇦🇺 +61 (Australia)</option>
             </select>
           </div>
 
-          {/* Phone Number Input */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-white mb-1">
-              Phone Number *
-            </label>
+          <div>
+            <label className='block mb-1 text-sm font-semibold'>Phone Number *</label>
             <input
-              type="text"
-              className="form-input w-full bg-[#1f1f1f] text-white rounded-md border border-gray-600 p-2"
+              type='text'
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
               value={phoneNumber}
               onChange={handlePhoneNumberChange}
               onBlur={handlePhoneNumberBlur}
+              placeholder='Enter phone number'
+            />
+            {phoneNumberHasError && <p className='mt-1 text-sm text-red-500'>Enter a valid phone number</p>}
+          </div>
+        </div>
+
+        {/* Address */}
+        <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+          <div>
+            <label className='block mb-1 text-sm font-semibold'>Address Label *</label>
+            <input
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
+              value={address.label}
+              onChange={(e) => handleAddressChange(e, "label")}
+              placeholder='e.g., Home, Office'
+            />
+          </div>
+
+          <div>
+            <label className='block mb-1 text-sm font-semibold'>Full Address *</label>
+            <input
+              className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
+              value={address.address}
+              onChange={(e) => handleAddressChange(e, "address")}
+              placeholder='Enter full address'
             />
           </div>
         </div>
-        {phoneNumberHasError && (
-          <p className="text-red-500 text-sm">Enter a valid phone number</p>
-        )}
-        <hr className="border-gray-700 my-4" />
-        <h3 className="text-lg font-semibold text-[#06C167]">
-          Delivery Address
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <input
-            placeholder="Label"
-            className="form-input"
-            value={address.label}
-            onChange={(e) => handleAddressChange(e, "label")}
-          />
-          <input
-            placeholder="Address"
-            className="form-input"
-            value={address.address}
-            onChange={(e) => handleAddressChange(e, "address")}
-          />
-        </div>
-        {addressError && (
-          <p className="text-red-500 text-sm mt-2">{addressError}</p>
-        )}
 
+        {addressError && <p className='mt-2 text-sm text-red-500'>{addressError}</p>}
+
+        {/* Submit Button */}
         <button
-          type="submit"
+          type='submit'
           disabled={!isValid}
           className={`w-full mt-6 py-3 font-bold rounded-md transition-colors duration-300 ${
-            isValid
-              ? "bg-[#06C167] hover:bg-[#04894e] text-black cursor-pointer"
-              : "bg-gray-600 text-gray-300 cursor-not-allowed"
-          }`}
-        >
+            isValid ? "bg-green-500 hover:bg-green-600 text-white cursor-pointer" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+          }`}>
           {isRegisteringUser ? "Registering..." : "Sign Up"}
         </button>
       </form>

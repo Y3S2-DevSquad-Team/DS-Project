@@ -3,14 +3,16 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
   // Reference to User service (only stores the ID)
   userId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: "User", // Reference to User service
   },
 
   // Reference to Restaurant service
   restaurantId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: "Restaurant", // Reference to Restaurant service
   },
 
   // Restaurant name is denormalized here to avoid frequent lookups
