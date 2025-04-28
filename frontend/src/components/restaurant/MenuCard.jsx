@@ -52,7 +52,7 @@ const MenuCard = ({ item }) => {
         </p>
         <div className="flex justify-between items-center mt-3">
           <span className="font-bold text-gray-800">
-            Rs. {item.price.toLocaleString()}
+            LKR. {item.price.toLocaleString()}
           </span>
           <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
             Add +

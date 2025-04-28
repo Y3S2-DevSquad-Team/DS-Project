@@ -8,6 +8,7 @@ import AdminAddRestaurantPage from './pages/AdminAddRestaurantPage';
 import AdminMenusPage from './pages/AdminMenusPage';
 import AdminAddMenuPage from './pages/AdminAddMenuPage';
 import AdminOrderManagement from './pages/AdminOrderManagement';
+import UserMenu from './pages/UserMenu';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/admin/menus/:id/edit" element={<AdminAddMenuPage />} />
             <Route path="/admin/restaurants/:id/menu/add" element={<AdminAddMenuPage />} />
             <Route path="admin/restaurants/:id/orders" element={<AdminOrderManagement />} />
+            <Route path="/menu" element={<UserMenu />} />
           </Routes>
         </main>
         

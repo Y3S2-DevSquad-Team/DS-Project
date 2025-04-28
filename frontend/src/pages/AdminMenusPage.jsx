@@ -66,7 +66,7 @@ const AdminMenusPage = () => {
                   <tr key={item._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.category}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rs. {item.price}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">LKR. {item.price}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.restaurantId?.name || 'N/A'}
                     </td>
