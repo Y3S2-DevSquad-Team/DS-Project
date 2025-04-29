@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Payment Service API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "payment-service-api-collection"
+  },
+  "item": [
+    {
+      "name": "Initiate Payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"ORDER12345\",\n  \"userId\": \"64e1f3541d53270012345678\",\n  \"amount\": 1500.0,\n  \"first_name\": \"Yasiru\",\n  \"last_name\": \"K\",\n  \"email\": \"yasiru@example.com\",\n  \"phone\": \"0770000000\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Colombo\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4003/api/payment/initiate",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "4003",
+          "path": [
+            "api",
+            "payment",
+            "initiate"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Simulate PayHere Callback",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "merchant_id",
+              "value": "121XXXX"
+            },
+            {
+              "key": "order_id",
+              "value": "ORDER12345"
+            },
+            {
+              "key": "payment_id",
+              "value": "P123456"
+            },
+            {
+              "key": "payhere_amount",
+              "value": "1500.00"
+            },
+            {
+              "key": "payhere_currency",
+              "value": "LKR"
+            },
+            {
+              "key": "status_code",
+              "value": "2"
+            },
+            {
+              "key": "method",
+              "value": "VISA"
+            },
+            {
+              "key": "card_holder_name",
+              "value": "Yasiru K"
+            },
+            {
+              "key": "paid_at",
+              "value": "2025-03-29 11:00:43"
+            },
+            {
+              "key": "md5sig",
+              "value": "SKIP_FOR_NOW"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:4003/api/payment/callback",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "4003",
+          "path": [
+            "api",
+            "payment",
+            "callback"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Payment Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4003/api/payment/status/ORDER12345",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "4003",
+          "path": [
+            "api",
+            "payment",
+            "status",
+            "ORDER12345"
+          ]
+        }
+      }
+    }
+  ]
+}

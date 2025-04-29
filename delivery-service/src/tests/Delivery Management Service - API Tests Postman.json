@@ -1,0 +1,146 @@
+{
+	"info": {
+		"_postman_id": "1645f4ca-de1b-40b6-8038-d464e2589faa",
+		"name": "Delivery Management Service - API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31847365"
+	},
+	"item": [
+		{
+			"name": "Assign Delivery",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"orderId\": \"6617c409abe71ec73a18d123\",\n  \"customerLocation\": {\n    \"lat\": 6.9271,\n    \"lng\": 79.8612\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:4002/api/delivery/assign",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4002",
+					"path": [
+						"api",
+						"delivery",
+						"assign"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Delivery Status",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"status\": \"picked\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:4002/api/delivery/update/67e429b17f9994abc6cae72c",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4002",
+					"path": [
+						"api",
+						"delivery",
+						"update",
+						"67e429b17f9994abc6cae72c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Driver Location",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"lat\": 6.9055,\n  \"lng\": 79.8644\n}"
+				},
+				"url": {
+					"raw": "http://localhost:4002/api/delivery/location/67e429b17f9994abc6cae72c",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4002",
+					"path": [
+						"api",
+						"delivery",
+						"location",
+						"67e429b17f9994abc6cae72c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Delivery Status by Order ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4002/api/delivery/status/6617c409abe71ec73a18d123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4002",
+					"path": [
+						"api",
+						"delivery",
+						"status",
+						"6617c409abe71ec73a18d123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Deliveries by Driver ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4002/api/delivery/driver/64e1f3541d53270012345678",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4002",
+					"path": [
+						"api",
+						"delivery",
+						"driver",
+						"64e1f3541d53270012345678"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

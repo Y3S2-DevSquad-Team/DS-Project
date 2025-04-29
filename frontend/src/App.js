@@ -54,7 +54,7 @@ function App() {
   return (
     <Router>
       <Navbar />
-
+<div className="mt-10">
       <Routes>
         {/* Public Pages */}
 
@@ -104,7 +104,7 @@ function App() {
         <Route path='/payment/cancel' element={<PaymentCancelPage />} />
         <Route path='/admin/payments' element={<AdminPaymentsPage />} />
       </Routes>
-
+      </div>
       <Footer />
     </Router>
   );
