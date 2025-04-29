@@ -7,7 +7,7 @@ app.use(express.json());
 
 app.use("/api/notification", notificationRoutes);
 
-const PORT = process.env.PORT || 4007;
+const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
   console.log(`Notification Service running on port ${PORT}`);
 });

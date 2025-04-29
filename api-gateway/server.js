@@ -28,24 +28,9 @@ app.use(
   "/api/restaurant",
   createProxyMiddleware({ target: "http://localhost:4004", changeOrigin: true })
 );
-// Proxy /api/auth/* requests to user-service
-app.use(
-  "/api/auth",
-  createProxyMiddleware({
-    target: process.env.USER_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: { "^/api/auth": "" },
-  })
-);
-
-// Proxy /api/notification/* requests to notification-service
 app.use(
   "/api/notification",
-  createProxyMiddleware({
-    target: process.env.NOTIFICATION_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: { "^/api/notification": "" },
-  })
+  createProxyMiddleware({ target: "http://localhost:5002", changeOrigin: true })
 );
 
 app.get("/", (req, res) => {

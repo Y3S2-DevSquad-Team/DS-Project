@@ -1,3 +1,6 @@
+const axios = require("axios");
+require("dotenv").config();
+
 const sendEmailNotification = async (to, subject, html) => {
   try {
     await axios.post(
@@ -28,4 +31,9 @@ const sendSMSNotification = async (to, message) => {
   } catch (error) {
     console.error("Error sending SMS via Notification Service:", error.message);
   }
+};
+
+module.exports = {
+  sendEmailNotification,
+  sendSMSNotification,
 };

@@ -15,9 +15,9 @@ connectDB();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use("/api/v1/auth", auth);
+app.use("/api/auth", auth);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
