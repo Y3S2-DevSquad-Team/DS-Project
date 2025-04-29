@@ -77,9 +77,7 @@ const AdminOrderManagement = () => {
               ))}
             </tbody>
           </table>
-          <div className="p-4 text-center text-sm text-gray-500">
-            Note: This is mock data. Will connect to backend when services are integrated.
-          </div>
+          
         </div>
       </div>
     </div>
