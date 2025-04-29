@@ -91,7 +91,6 @@ project-root/
 ├── payment-service/
 ├── notification-service/
 ├── frontend/
-└── kubernetes/           # Contains YAML files for all services
 ```
 
 ### Environment Setup
