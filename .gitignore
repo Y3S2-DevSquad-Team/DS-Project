@@ -8,6 +8,8 @@ lerna-debug.log*
 .pnpm-debug.log*
 package-lock.json
 .vscode
+api-gateway.rar
+
 
 .dockerignore
 docker-compose.yml

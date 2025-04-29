@@ -1,21 +1,22 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-export default function RestaurantCard({ restaurant }) {
+const RestaurantCard = ({ restaurant }) => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.03 }}
-      className="bg-white text-secondary rounded-xl overflow-hidden shadow-lg cursor-pointer transition-transform"
+    <motion.div 
+      className="transition-all bg-white shadow rounded-xl hover:shadow-lg"
+      whileHover={{ scale: 1.02 }}
     >
-      <img
-        src={restaurant.image}
-        alt={restaurant.name}
-        className="w-full h-40 object-cover"
-      />
-      <div className="p-4">
-        <h3 className="text-lg font-semibold">{restaurant.name}</h3>
-        <p className="text-sm text-gray-600">⭐ {restaurant.rating}</p>
-        <p className="text-sm text-gray-500">{restaurant.deliveryTime}</p>
-      </div>
+      <Link to={`/restaurant/${restaurant._id}`}>
+        <div className="h-40 bg-gray-200 rounded-t-xl"></div> {/* Image Placeholder */}
+        <div className="p-4">
+          <h2 className="text-lg font-semibold text-gray-800">{restaurant.name}</h2>
+          <p className="text-sm text-gray-500">{restaurant.address}</p>
+          <p className="mt-1 text-sm text-gray-500">{restaurant.openingHours}</p>
+        </div>
+      </Link>
     </motion.div>
   );
-}
+};
+
+export default RestaurantCard;
