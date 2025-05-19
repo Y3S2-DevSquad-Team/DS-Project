@@ -51,6 +51,7 @@ router.post(
   validate,
   signupCustomer
 );
+
 router.post(
   "/signup/delivery",
   upload.single("businessCertificate"),

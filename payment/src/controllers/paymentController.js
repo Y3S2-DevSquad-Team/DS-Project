@@ -1,91 +1,87 @@
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const Payment = require("../models/Payment");
-const crypto = require("crypto");
-const { validationResult } = require("express-validator");
-const { MERCHANT_ID, MERCHANT_SECRET, CLIENT_URL, SERVER_URL, PAYHERE_URL } = require("../config/payhereConfig");
-const verifySignature = require("../utils/verifySignature");
 const axios = require("axios");
 const SERVICE_URLS = require("../config/serviceUrls");
 
-function generatePayHereHash({ merchant_id, order_id, amount, currency, merchant_secret }) {
-  const formattedAmount = parseFloat(amount).toFixed(2); // Always 2 decimals
-  const hashedSecret = crypto.createHash("md5").update(merchant_secret).digest("hex").toUpperCase();
-  const baseString = merchant_id + order_id + formattedAmount + currency + hashedSecret;
-  const hash = crypto.createHash("md5").update(baseString).digest("hex").toUpperCase();
-  return hash;
-}
-
-exports.handleCallback = async (req, res) => {
+exports.initiatePayment = async (req, res) => {
   try {
-    const callbackData = req.body;
+    const { orderId, userId, amount, email } = req.body;
 
-    const isValid = verifySignature(callbackData, MERCHANT_SECRET);
-    if (!isValid) {
-      console.warn("[PayHere] Invalid signature detected");
-      return res.status(400).json({ message: "Invalid signature" });
-    }
+    const payment = await Payment.create({
+      orderId,
+      userId,
+      amount,
+      status: "pending",
+      currency: "LKR",
+    });
 
-    const { order_id, payment_id, status_code } = callbackData;
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      customer_email: email,
+      line_items: [{
+        price_data: {
+          currency: "lkr",
+          product_data: { name: "Delivery Order" },
+          unit_amount: Math.round(amount * 100),
+        },
+        quantity: 1,
+      }],
+      mode: "payment",
+      success_url: `${process.env.CLIENT_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/payment/cancel`,
+      metadata: {
+        orderId: payment.orderId.toString(),
+        paymentId: payment._id.toString(),
+      },
+    });
 
-    const payment = await Payment.findOne({ orderId: order_id });
-    if (!payment) return res.status(404).json({ message: "Payment record not found" });
-
-    // ✅ Save full callback payload
-    payment.payherePaymentId = payment_id;
-    payment.payhereRaw = callbackData;
-
-    // ✅ Map PayHere status_code
-    switch (status_code) {
-      case "2":
-        payment.status = "success";
-        break;
-      case "0":
-        payment.status = "pending";
-        break;
-      case "-1":
-        payment.status = "cancelled";
-        break;
-      default:
-        payment.status = "failed";
-    }
-
-    await payment.save();
-    console.log(`[Payment] Status updated to: ${payment.status}`);
-
-    // ✅ Retry updating Order status if payment is successful
-    if (payment.status === "success") {
-      let success = false,
-        attempts = 0;
-      while (!success && attempts < 3) {
-        try {
-          await axios.put(`${SERVICE_URLS.ORDER_SERVICE}/${payment.orderId}/status`, {
-            status: "processing",
-          });
-          success = true;
-          console.log("[Trigger] Order status updated to 'processing'");
-        } catch (err) {
-          attempts++;
-          console.warn(`[Retry ${attempts}] Failed to update order status:`, err.message);
-          await new Promise((r) => setTimeout(r, 1000 * attempts));
-        }
-      }
-
-      if (!success) {
-        console.error("🚨 Failed to notify Order Service after payment. Manual action required.");
-      }
-    }
-
-    res.status(200).json({ message: "Callback processed successfully" });
+    res.json({ url: session.url });
   } catch (err) {
-    console.error("[Error] handleCallback:", err);
-    res.status(500).json({ message: "Failed to process callback" });
+    console.error("[Stripe Payment Error]:", err);
+    res.status(500).json({ message: "Stripe payment initiation failed", error: err.message });
   }
 };
 
-// 3️⃣ Get Payment Status by orderId
+// Stripe webhook endpoint
+exports.stripeWebhook = async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error("Webhook signature invalid:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    const orderId = session.metadata.orderId;
+    const paymentId = session.metadata.paymentId;
+
+    try {
+      await Payment.findByIdAndUpdate(paymentId, {
+        status: "success",
+        method: "card",
+        cardHolderName: session.customer_details.name,
+        transactionDate: new Date(),
+      });
+
+      // Inform order service
+      await axios.put(`${SERVICE_URLS.ORDER_SERVICE}/${orderId}/status`, { status: "processing" });
+    } catch (err) {
+      console.error("Post-payment update failed:", err.message);
+    }
+  }
+
+  res.status(200).json({ received: true });
+};
+
 exports.getPaymentStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-
     const payment = await Payment.findOne({ orderId });
     if (!payment) return res.status(404).json({ message: "Payment not found" });
 
@@ -97,85 +93,17 @@ exports.getPaymentStatus = async (req, res) => {
       updatedAt: payment.updatedAt,
     });
   } catch (err) {
-    console.error("[Error] getPaymentStatus:", err);
+    console.error("getPaymentStatus error:", err);
     res.status(500).json({ message: "Failed to retrieve payment status" });
   }
 };
 
-exports.initiatePayment = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-  try {
-    const { orderId, userId, amount, first_name, last_name, email, phone, address, city } = req.body;
-
-    // 1️⃣ Create Payment record in DB
-    const payment = await Payment.create({
-      orderId,
-      userId,
-      amount,
-      status: "pending",
-    });
-
-    // 2️⃣ Prepare PayHere payload
-    const merchant_id = MERCHANT_ID;
-    const return_url = `${CLIENT_URL}/payment/success`;
-    const cancel_url = `${CLIENT_URL}/payment/cancel`;
-    const notify_url = `${SERVER_URL}/api/payment/callback`;
-    const items = "Delivery Order";
-    const currency = "LKR";
-    const country = "Sri Lanka";
-
-    // 3️⃣ Generate HASH for security
-    const hash = generatePayHereHash({
-      merchant_id,
-      order_id: orderId,
-      amount,
-      currency,
-      merchant_secret: MERCHANT_SECRET,
-    });
-
-    // 4️⃣ Build payload with hash included
-    const paymentData = {
-      merchant_id,
-      return_url,
-      cancel_url,
-      notify_url,
-      order_id: orderId,
-      items,
-      currency,
-      amount: parseFloat(amount).toFixed(2),
-      first_name,
-      last_name,
-      email,
-      phone,
-      address,
-      city,
-      country,
-      hash, // 🔥 Important: Hash now included
-    };
-
-    console.log("[Payment Initiate] PaymentData Sent:", paymentData);
-
-    // 5️⃣ Respond to frontend
-    res.status(200).json({
-      message: "Redirect to PayHere",
-      payhereURL: PAYHERE_URL,
-      payload: paymentData,
-    });
-  } catch (err) {
-    console.error("[Error] initiatePayment:", err);
-    res.status(500).json({ message: "Failed to initiate payment" });
-  }
-};
-
-// Admin - Get All Payments
 exports.getAllPayments = async (req, res) => {
   try {
-    const payments = await Payment.find().sort({ createdAt: -1 }); // newest first
+    const payments = await Payment.find().sort({ createdAt: -1 });
     res.json(payments);
   } catch (err) {
-    console.error(err);
+    console.error("getAllPayments error:", err);
     res.status(500).json({ message: "Failed to fetch payments" });
   }
 };

@@ -1,5 +1,5 @@
-const express = require('express');
-const authToken = require('../middleware/authToken');
+const express = require("express");
+const authToken = require("../middleware/authToken");
 const {
   createRestaurant,
   getRestaurants,
@@ -7,22 +7,21 @@ const {
   updateRestaurant,
   deleteRestaurant,
   addOrderToRestaurant,
-  completeOrder
-
-} = require('../controllers/RestaurantController.js');
+  completeOrder,
+} = require("../controllers/RestaurantController.js");
 
 const router = express.Router();
 
 // Restaurant routes
-router.post('/', authToken, createRestaurant);
-router.get('/', authToken, getRestaurants);
-router.get('/:id', authToken, getRestaurant);
-router.put('/:id', authToken, updateRestaurant);
-router.delete('/:id', authToken, deleteRestaurant);
+router.post("/", createRestaurant);
+router.get("/", getRestaurants);
+router.get("/:id", getRestaurant);
+router.put("/:id", updateRestaurant);
+router.delete("/:id", deleteRestaurant);
 
 // Order-related routes
-router.post('/:restaurantId/orders/:orderId', authToken, addOrderToRestaurant);
-router.post('/:restaurantId/orders/:orderId/complete', authToken, completeOrder);
+router.post("/:restaurantId/orders/:orderId", addOrderToRestaurant);
+router.post("/:restaurantId/orders/:orderId/complete", completeOrder);
 
 /*router.get('/:id/orders', getOrderDashboard);
 router.put('/:id/orders/:orderId', authToken, updateOrderStatus);*/

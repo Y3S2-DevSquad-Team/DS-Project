@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
   // Reference to User service (only stores the ID)
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type:  mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "User", // Reference to User service
   },
@@ -70,9 +70,15 @@ const orderSchema = new mongoose.Schema({
     default: Date.now,
   },
 
-  // Delivery information (optional)
+  // Delivery information
   deliveryAddress: {
     type: String,
+    required: true,
+  },
+
+  // Add deliveryCoords field to schema
+  deliveryCoords: {
+    type: Object,
     required: true,
   },
 

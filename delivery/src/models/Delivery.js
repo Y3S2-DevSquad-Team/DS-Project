@@ -12,6 +12,18 @@ const deliverySchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    restaurantName: {
+      type: String,
+      required: true,
+    },
+    items: [
+      {
+        menuItemId: { type: String, required: true },
+        itemName: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
+      },
+    ],
     customerLocation: {
       lat: { type: Number, required: true },
       lng: { type: Number, required: true },
@@ -23,7 +35,15 @@ const deliverySchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["unassigned", "assigned", "accepted", "picked", "delivered", "cancelled"],
-      default: "unassigned", 
+      default: "unassigned",
+    },
+    statusTimestamps: {
+      unassigned: { type: Date, default: Date.now },
+      assigned: { type: Date },
+      accepted: { type: Date },
+      picked: { type: Date },
+      delivered: { type: Date },
+      cancelled: { type: Date },
     },
   },
   { timestamps: true }

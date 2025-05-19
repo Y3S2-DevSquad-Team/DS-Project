@@ -58,18 +58,18 @@ app.use(
 
 // ✅ RESTAURANT SERVICE
 app.use(
-  "/api/restaurant",
+  "/",
   createProxyMiddleware({
     target: "http://localhost:4004",
     changeOrigin: true,
   })
 );
 
-// ✅ MENU ITEM SERVICE (subgroup of restaurant)
+// ✅ MENU ITEM SERVICE (inside Restaurant Service)
 app.use(
-  "/api/menu",
+  "/",
   createProxyMiddleware({
-    target: "http://localhost:4004",
+    target: "http://localhost:4004", // Same Restaurant Service
     changeOrigin: true,
   })
 );

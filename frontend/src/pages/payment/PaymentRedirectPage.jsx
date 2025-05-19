@@ -8,11 +8,9 @@ export default function PaymentRedirectPage() {
   useEffect(() => {
     const initiatePaymentFlow = async () => {
       try {
-        const amount = parseFloat(searchParams.get("amount"));
         const userId = localStorage.getItem("userId");
         const restaurantId = localStorage.getItem("restaurantId");
         const restaurantName = localStorage.getItem("restaurantName");
-
         const userEmail = localStorage.getItem("userEmail");
         const userPhone = localStorage.getItem("userPhone");
         const firstName = localStorage.getItem("userFirstName");
@@ -28,17 +26,25 @@ export default function PaymentRedirectPage() {
           return;
         }
 
-        // 1️⃣ Create Order First
-        const createOrderResponse = await axios.post("http://localhost:8080/api/order/api/order", {
+        // Ensure deliveryCoords has the correct format
+        if (!deliveryCoords.lat || !deliveryCoords.lng) {
+          console.error("Invalid coordinates format:", deliveryCoords);
+          return;
+        }
+
+        const formattedItems = cartItems.map((item) => ({
+          menuItemId: item._id,
+          itemName: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+
+        // 1️⃣ Create Order
+        const createOrderResponse = await axios.post("http://localhost:8080/api/orders", {
           userId,
           restaurantId,
           restaurantName,
-          items: cartItems.map((item) => ({
-            menuItemId: item._id,
-            itemName: item.name,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+          items: formattedItems,
           totalAmount,
           deliveryAddress,
           deliveryCoords,
@@ -46,47 +52,36 @@ export default function PaymentRedirectPage() {
 
         const createdOrder = createOrderResponse.data;
         const createdOrderId = createdOrder._id;
-
         console.log("[Checkout] Created Order ID:", createdOrderId);
 
-        // 2️⃣ Create Delivery for the new Order (🔥 NEW STEP)
-        await axios.post("http://localhost:4002/api/delivery/assign", {
+        // 2️⃣ Assign Delivery — ensure proper format for customerLocation
+        await axios.post("http://localhost:8080/api/delivery/assign", {
           orderId: createdOrderId,
-          customerLocation: deliveryCoords,
+          restaurantName,
+          items: formattedItems,
+          customerLocation: {
+            lat: deliveryCoords.lat,
+            lng: deliveryCoords.lng
+          },
         });
-        console.log("[Checkout] Delivery created successfully for order:", createdOrderId);
+        console.log("[Checkout] Delivery assigned");
 
-        // 3️⃣ Initiate Payment
-        const initiatePaymentResponse = await axios.post("http://localhost:8080/api/payment/api/payment/initiate", {
+        // 3️⃣ Create Stripe Payment Session
+        const paymentResponse = await axios.post("http://localhost:8080/api/payment/initiate", {
           orderId: createdOrderId,
           userId,
           amount: totalAmount,
-          first_name: firstName || "Test",
-          last_name: lastName || "User",
           email: userEmail || "test@example.com",
-          phone: userPhone || "0770000000",
-          address: deliveryAddress,
-          city: "Colombo",
         });
 
-        const { payhereURL, payload } = initiatePaymentResponse.data;
-        console.log("[Checkout] Payment Payload prepared:", payload);
-
-        // 4️⃣ Auto-submit form to PayHere
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = payhereURL;
-
-        for (const key in payload) {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = key;
-          input.value = payload[key];
-          form.appendChild(input);
+        const { url } = paymentResponse.data;
+        if (!url) {
+          throw new Error("Stripe session URL not returned");
         }
 
-        document.body.appendChild(form);
-        form.submit();
+        // 4️⃣ Redirect to Stripe Checkout
+        window.location.href = url;
+
       } catch (err) {
         console.error("Payment initiation failed:", err);
       }

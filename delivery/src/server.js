@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
   res.send("🚚 Delivery Management Service is running");
 });
 
-app.use("/api/delivery", deliveryRoutes);
+app.use("/", deliveryRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4002;

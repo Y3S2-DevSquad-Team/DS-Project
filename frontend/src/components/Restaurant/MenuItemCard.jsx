@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useCart } from "../../contexts/CartContext";
+import { toast } from "react-toastify";
 
 const MenuItemCard = ({ item }) => {
   const { addToCart } = useCart();
@@ -14,6 +15,7 @@ const MenuItemCard = ({ item }) => {
         <button
           onClick={() => {
             console.log("Adding item:", item);
+            toast.success("Item added to cart!");
             addToCart(item);
           }}
           className='px-4 py-2 text-sm font-semibold text-white bg-green-500 rounded-md hover:bg-green-600'>

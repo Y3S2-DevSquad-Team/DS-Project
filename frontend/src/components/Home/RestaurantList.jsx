@@ -8,7 +8,12 @@ const RestaurantList = () => {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const res = await api.get("/api/restaurants");
+        const token = localStorage.getItem("token");
+        const res = await api.get("/api/restaurants", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setRestaurants(res.data);
       } catch (error) {
         console.error("Failed to fetch restaurants", error);

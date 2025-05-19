@@ -15,7 +15,7 @@ connectDB();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use("/api/auth", auth);
+app.use("/", auth);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

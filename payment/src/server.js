@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const paymentRoutes = require("./routes/paymentRoutes");
-app.use("/api/payment", paymentRoutes);
+app.use("/", paymentRoutes);
 
 // Health check
 app.get("/", (req, res) => {

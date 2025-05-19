@@ -15,26 +15,26 @@ const {
 } = require("../controllers/deliveryController");
 
 // Assign a delivery to a driver
-router.post("/assign", authToken, assignDelivery);
+router.post("/assign", assignDelivery);
 
 // Update delivery status (accepted, picked, delivered)
-router.patch("/update/:id", authToken, updateStatus);
+router.patch("/update/:id", updateStatus);
 
 // Update driver’s live location
-router.patch("/location/:id", authToken, updateLocation);
+router.patch("/location/:id", updateLocation);
 
 // Get delivery status (customer view)
-router.get("/status/:orderId", authToken, getStatusByOrderId);
+router.get("/status/:orderId", getStatusByOrderId);
 
 // Get deliveries for a specific driver
-router.get("/driver/:driverId", authToken, getDeliveriesForDriver);
+router.get("/driver/:driverId", getDeliveriesForDriver);
 
-router.get("/available", authToken, getAvailableDeliveries);
+router.get("/available", getAvailableDeliveries);
 
-router.patch("/accept/:id", authToken, acceptDelivery);
+router.patch("/accept/:id", acceptDelivery);
 
-router.patch('/pickup/:id', authToken, markPickedUp);
+router.patch('/pickup/:id', markPickedUp);
 
-router.patch('/deliver/:id', authToken, markDelivered);
+router.patch('/deliver/:id', markDelivered);
 
 module.exports = router;

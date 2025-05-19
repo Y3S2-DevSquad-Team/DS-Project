@@ -1,32 +1,63 @@
 const Delivery = require("../models/Delivery");
-const haversine = require("../utils/haversine");
-const statusCodes = require("../utils/statusCodes");
 const axios = require("axios");
 const SERVICE_URLS = require("../config/serviceUrls"); // Path where you keep service URLs
 
 const { assignDeliverySchema } = require("../validators/deliveryValidator");
 
+const mongoose = require("mongoose");
+
 // 1️⃣ Create Delivery (unassigned)
 exports.assignDelivery = async (req, res) => {
   try {
+    console.log("[Delivery API] Received assign request with body:", JSON.stringify(req.body));
+
+    // Validate request body against schema
     const { error } = assignDeliverySchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
+    if (error) {
+      console.error("[Delivery API] Validation error:", error.details[0].message);
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
-    const { orderId, customerLocation } = req.body;
+    const { orderId, customerLocation, restaurantName, items } = req.body;
 
+    // Ensure orderId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      console.error("[Delivery API] Invalid orderId format:", orderId);
+      return res.status(400).json({ message: "Invalid orderId format" });
+    }
+
+    // Validate customerLocation
+    if (!customerLocation || typeof customerLocation.lat !== "number" || typeof customerLocation.lng !== "number") {
+      console.error("[Delivery API] Invalid customerLocation:", customerLocation);
+      return res.status(400).json({ message: "Invalid customerLocation format" });
+    }
+
+    // Validate items array
+    if (!Array.isArray(items) || items.length === 0) {
+      console.error("[Delivery API] Invalid items array:", items);
+      return res.status(400).json({ message: "Items must be a non-empty array" });
+    }
+
+    // Convert orderId to ObjectId
+    const orderObjectId = new mongoose.Types.ObjectId(orderId);
+
+    // Create delivery
+    console.log("[Delivery API] Creating delivery with orderId:", orderObjectId);
     const delivery = await Delivery.create({
-      orderId,
-      driverId: null, // no driver assigned yet
+      orderId: orderObjectId,
+      driverId: null,
+      restaurantName,
+      items,
       customerLocation,
       driverLocation: { lat: null, lng: null },
       status: "unassigned",
     });
 
-    console.log("[Delivery] Created available delivery:", delivery._id);
+    console.log("[Delivery API] Created available delivery:", delivery._id);
     res.status(201).json({ message: "Delivery created successfully", delivery });
   } catch (err) {
     console.error("[Error] assignDelivery:", err);
-    res.status(500).json({ message: "Failed to create delivery" });
+    res.status(500).json({ message: `Failed to create delivery: ${err.message}` });
   }
 };
 
@@ -78,20 +109,24 @@ exports.updateStatus = async (req, res) => {
 
     delivery.status = status;
 
-    // ✅ If driver sent updated location, save it
+    // ✅ Save status timestamp
+    delivery.statusTimestamps[status] = new Date();
+
+    // ✅ Save driver location if available
     if (lat !== undefined && lng !== undefined) {
       delivery.driverLocation = { lat, lng };
     }
 
     await delivery.save();
 
-    console.log(`[Delivery] Status updated: ${status} with location update`);
+    console.log(`[Delivery] Status updated to "${status}" with timestamp`);
     res.json({ message: "Status updated", delivery });
   } catch (err) {
     console.error("[Error] updateStatus:", err);
     res.status(500).json({ message: "Failed to update status" });
   }
 };
+
 
 // Update driver location
 exports.updateLocation = async (req, res) => {

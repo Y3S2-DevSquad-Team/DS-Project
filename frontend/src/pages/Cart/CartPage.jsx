@@ -1,5 +1,8 @@
 import { useCart } from "../../contexts/CartContext";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -19,6 +22,7 @@ const CartPage = () => {
 
   return (
     <div className='min-h-screen p-8 bg-gray-100'>
+      <ToastContainer position="top-right" autoClose={2000} />
       <div className='max-w-5xl p-6 mx-auto bg-white rounded-lg shadow-md'>
         <h2 className='mb-6 text-2xl font-bold text-gray-800'>Your Cart</h2>
 
@@ -35,10 +39,19 @@ const CartPage = () => {
                   type='number'
                   min='1'
                   value={item.quantity}
-                  onChange={(e) => updateQuantity(item._id, parseInt(e.target.value))}
+                  onChange={(e) => {
+                    updateQuantity(item._id, parseInt(e.target.value));
+                    toast.info("Quantity updated!");
+                  }}
                   className='w-16 p-2 text-gray-800 border border-gray-300 rounded-md'
                 />
-                <button onClick={() => removeFromCart(item._id)} className='font-semibold text-red-500 hover:underline'>
+                <button
+                  onClick={() => {
+                    removeFromCart(item._id);
+                    toast.success("Item removed from cart!");
+                  }}
+                  className='font-semibold text-red-500 hover:underline'
+                >
                   Remove
                 </button>
               </div>
@@ -48,7 +61,11 @@ const CartPage = () => {
 
         <div className='flex items-center justify-between mt-8'>
           <h3 className='text-lg font-bold text-gray-800'>Total: Rs {totalAmount.toFixed(2)}</h3>
-          <Link to='/checkout' className='px-6 py-2 font-bold text-white transition bg-green-500 rounded-md hover:bg-green-600'>
+          <Link
+            to='/checkout'
+            className='px-6 py-2 font-bold text-white transition bg-green-500 rounded-md hover:bg-green-600'
+            onClick={() => toast.success("Proceeding to checkout!")}
+          >
             Checkout
           </Link>
         </div>

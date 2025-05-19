@@ -25,6 +25,9 @@ const paymentSchema = new mongoose.Schema(
       enum: ["pending", "success", "failed", "cancelled"],
       default: "pending",
     },
+    stripeSessionId: {
+      type: String,
+    },
     payherePaymentId: {
       type: String,
     },
