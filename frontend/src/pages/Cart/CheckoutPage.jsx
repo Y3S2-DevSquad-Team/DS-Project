@@ -1,7 +1,7 @@
 import { useCart } from "../../contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import MapSelector from "../../components/Delivery/MapSelector";
+import MapSelector from "../../components/delivery/MapSelector";
 
 const CheckoutPage = () => {
   const { cartItems } = useCart();

@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { registerUser, loginUser } from "../thunks/userThunks";
+import {
+  registerUser,
+  loginUser,
+  fetchUserProfile,
+} from "../thunks/userThunks";
 
 const initialState = {
   currentUser: null,
@@ -38,6 +42,11 @@ const userSlice = createSlice({
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         state.currentUser = user;
+      })
+
+      // Fetch User Profile
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.currentUser = action.payload;
       });
 
     // Update User

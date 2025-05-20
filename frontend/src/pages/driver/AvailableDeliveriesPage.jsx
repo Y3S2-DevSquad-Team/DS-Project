@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import DeliveryRouteMap from "../../components/Delivery/DeliveryRouteMap";
+import DeliveryRouteMap from "../../components/delivery/DeliveryRouteMap";
 
 export default function AvailableDeliveriesPage() {
   const [deliveries, setDeliveries] = useState([]);
@@ -17,7 +17,9 @@ export default function AvailableDeliveriesPage() {
   useEffect(() => {
     const fetchAvailableDeliveries = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/delivery/available");
+        const res = await axios.get(
+          "http://localhost:8080/api/delivery/available"
+        );
         setDeliveries(res.data);
 
         for (const delivery of res.data) {
@@ -25,8 +27,11 @@ export default function AvailableDeliveriesPage() {
           const locationStr = `${lat},${lng}`;
 
           if (!locations[locationStr]) {
-            const geoRes = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GEOCODING_API_KEY}`);
-            const address = geoRes.data.results?.[0]?.formatted_address || "Unknown location";
+            const geoRes = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GEOCODING_API_KEY}`
+            );
+            const address =
+              geoRes.data.results?.[0]?.formatted_address || "Unknown location";
             setLocations((prev) => ({ ...prev, [locationStr]: address }));
           }
         }
@@ -64,27 +69,35 @@ export default function AvailableDeliveriesPage() {
     } catch (error) {
       console.error("Failed to accept delivery:", error);
 
-      const message = error.response?.data?.message || "Something went wrong. Try again later.";
+      const message =
+        error.response?.data?.message ||
+        "Something went wrong. Try again later.";
       toast.error(`Error: ${message}`);
     }
   };
 
   if (loading) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <h2 className='text-2xl font-semibold text-gray-700 animate-pulse'>Loading deliveries...</h2>
+      <div className="flex items-center justify-center min-h-screen">
+        <h2 className="text-2xl font-semibold text-gray-700 animate-pulse">
+          Loading deliveries...
+        </h2>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen px-4 py-8 bg-gray-50'>
-      <h1 className='mb-6 text-3xl font-bold text-center text-green-600'>Available Deliveries</h1>
+    <div className="min-h-screen px-4 py-8 bg-gray-50">
+      <h1 className="mb-6 text-3xl font-bold text-center text-green-600">
+        Available Deliveries
+      </h1>
 
       {deliveries.length === 0 ? (
-        <p className='text-center text-gray-500'>No deliveries available at the moment.</p>
+        <p className="text-center text-gray-500">
+          No deliveries available at the moment.
+        </p>
       ) : (
-        <ul className='space-y-4'>
+        <ul className="space-y-4">
           {deliveries.map((delivery) => {
             const { lat, lng } = delivery.customerLocation;
             const locationStr = `${lat},${lng}`;
@@ -93,32 +106,41 @@ export default function AvailableDeliveriesPage() {
             return (
               <li
                 key={delivery._id}
-                className='flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 bg-white shadow-sm border border-gray-200 rounded-lg'>
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 bg-white shadow-sm border border-gray-200 rounded-lg"
+              >
                 <div>
-                  <p className='text-gray-800 font-semibold'>🍽️ Restaurant: {delivery.restaurantName}</p>
-                  <ul className='text-gray-600 ml-4 list-disc'>
+                  <p className="text-gray-800 font-semibold">
+                    🍽️ Restaurant: {delivery.restaurantName}
+                  </p>
+                  <ul className="text-gray-600 ml-4 list-disc">
                     {delivery.items?.map((item, idx) => (
                       <li key={idx}>
                         {item.itemName} × {item.quantity} – Rs. {item.price}
                       </li>
                     ))}
                   </ul>
-                  <p className='text-sm text-gray-500 mt-2'>📍 Location: {readableLocation}</p>
-                  <p className='text-sm text-gray-500'>Status: {delivery.status}</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    📍 Location: {readableLocation}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Status: {delivery.status}
+                  </p>
                 </div>
 
-                <div className='flex gap-3'>
+                <div className="flex gap-3">
                   <button
                     onClick={() => {
                       setSelectedLocation(delivery.customerLocation);
                       setShowMap(true);
                     }}
-                    className='px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600'>
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600"
+                  >
                     View Route
                   </button>
                   <button
                     onClick={() => handleAccept(delivery._id)}
-                    className='px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600'>
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600"
+                  >
                     Accept
                   </button>
                 </div>
@@ -129,17 +151,26 @@ export default function AvailableDeliveriesPage() {
       )}
 
       {showMap && selectedLocation && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60' onClick={() => setShowMap(false)}>
-          <div className='bg-white rounded-lg shadow-xl p-4 w-[95%] max-w-3xl relative' onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+          onClick={() => setShowMap(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl p-4 w-[95%] max-w-3xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* ❌ Close button in top-right corner */}
             <button
               onClick={() => setShowMap(false)}
-              className='absolute top-2 right-2 text-gray-600 hover:text-red-500 text-lg font-bold'
-              aria-label='Close'>
+              className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-lg font-bold"
+              aria-label="Close"
+            >
               ✖
             </button>
 
-            <h3 className='mb-4 text-xl font-bold text-center text-gray-800'>Delivery Route</h3>
+            <h3 className="mb-4 text-xl font-bold text-center text-gray-800">
+              Delivery Route
+            </h3>
             <DeliveryRouteMap destination={selectedLocation} />
           </div>
         </div>
