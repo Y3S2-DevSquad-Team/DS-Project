@@ -82,13 +82,10 @@ const DeliveryPersonProfile = () => {
 
   return (
     <>
-      {/* Sidebar */}
-      <div className="fixed top-0 left-0 w-64 h-screen">
-        <ProfileSidebar handleLogout={handleLogout} />
-      </div>
+
 
       {/* Main Content */}
-      <div className="min-h-screen p-10 ml-64 overflow-y-auto bg-gray-100">
+      <div className="min-h-screen p-10 overflow-y-auto bg-gray-100">
         <div className="w-full p-8 bg-white rounded-lg shadow-md">
           <div className="flex flex-col items-center mb-8">
             <div className="relative">

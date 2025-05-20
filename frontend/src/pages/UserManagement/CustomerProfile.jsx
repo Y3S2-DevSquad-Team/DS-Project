@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userLogout } from "../../store/slices/userSlice";
 import showToast from "../../utils/toastNotifications";
-import ProfileSidebar from "../../components/UserManagement/ProfileSidebar";
 import userAvatar from "../../assets/accountInfo/user-info-avatar.svg";
-import { TbEdit } from "react-icons/tb";
+import { TbEdit, TbPhone, TbMail, TbUser } from "react-icons/tb";
+import { MdOutlineSave, MdCancel, MdEditNote } from "react-icons/md";
 import { fetchUserProfile, updateUser } from "../../store/thunks/userThunks";
 
 const CustomerProfile = () => {
@@ -67,45 +67,50 @@ const CustomerProfile = () => {
 
   if (loading || !currentUser) {
     return (
-      <div className="mt-10 text-center text-gray-800">Loading profile...</div>
+      <div className="mt-10 text-center text-gray-800 text-lg font-medium">
+        Loading profile...
+      </div>
     );
   }
 
   return (
-    <>
-      <div className="fixed top-0 left-0 w-64 h-screen">
-        <ProfileSidebar handleLogout={handleLogout} />
-      </div>
-
-      <div className="min-h-screen p-10 ml-64 overflow-y-auto bg-gray-100">
-        <div className="w-full p-8 bg-white rounded-lg shadow-md">
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative">
-              <img
-                src={userAvatar}
-                alt="Profile"
-                className="object-cover w-24 h-24 rounded-full"
-              />
-              {isEditing && (
-                <div
-                  className="absolute bottom-0 right-0 p-1 bg-green-500 rounded-full cursor-pointer"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  <TbEdit className="text-white" />
-                </div>
-              )}
-              <input ref={fileInputRef} type="file" className="hidden" />
-            </div>
-            <h2 className="mt-4 text-2xl font-bold text-green-600">
-              {form.username}
-            </h2>
-            <p className="text-gray-600">Customer</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-400 to-white px-4 py-10 font-sans">
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl p-10">
+        <div className="flex flex-col items-center mb-10">
+          <div className="relative w-32 h-32">
+            <img
+              src={userAvatar}
+              alt="Profile"
+              className="w-full h-full object-cover rounded-full border-4 border-green-500 shadow-md"
+            />
+            {isEditing && (
+              <button
+                onClick={() => fileInputRef.current.click()}
+                className="absolute bottom-1 right-1 p-2 bg-green-600 rounded-full hover:bg-green-700 transition shadow"
+              >
+                <TbEdit className="text-white text-xl" />
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" className="hidden" />
           </div>
+          <h2 className="mt-4 text-4xl font-bold text-green-700 tracking-wide">
+            {form.username}
+          </h2>
+          <p className="text-sm text-gray-500 font-medium">Customer</p>
+        </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {Object.entries(form).map(([key, value]) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {Object.entries(form).map(([key, value]) => {
+            const iconMap = {
+              username: <TbUser className="text-green-600 mr-2 text-xl" />,
+              email: <TbMail className="text-green-600 mr-2 text-xl" />,
+              phone: <TbPhone className="text-green-600 mr-2 text-xl" />,
+            };
+
+            return (
               <div key={key}>
-                <label className="block mb-1 text-sm font-medium text-gray-700 capitalize">
+                <label className="flex items-center text-sm font-semibold text-gray-700 mb-2 capitalize">
+                  {iconMap[key] || null}
                   {key.replace(/([A-Z])/g, " $1")}
                 </label>
                 <input
@@ -114,40 +119,40 @@ const CustomerProfile = () => {
                   value={value}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 text-gray-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition"
                 />
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          <div className="flex justify-end gap-4 mt-8">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={handleCancel}
-                  className="px-6 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600"
-                >
-                  Save
-                </button>
-              </>
-            ) : (
+        <div className="flex justify-end mt-10">
+          {isEditing ? (
+            <div className="flex gap-4">
               <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600"
+                onClick={handleCancel}
+                className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
               >
-                Edit Info
+                <MdCancel className="text-xl" /> Cancel
               </button>
-            )}
-          </div>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 shadow transition"
+              >
+                <MdOutlineSave className="text-xl" /> Save
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 shadow transition"
+            >
+              <MdEditNote className="text-xl" /> Edit Info
+            </button>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -100,7 +100,7 @@ const DeliveryPersonSignupForm = () => {
   };
 
   return (
-    <div className='flex items-center justify-center min-h-screen text-gray-800 bg-gray-100'>
+    <div className='flex justify-center min-h-screen text-gray-800 bg-gray-100 ml-64'>
       <form onSubmit={handleSubmit} className='w-full max-w-2xl p-8 space-y-6 bg-white rounded-lg shadow-lg'>
         <h2 className='mb-4 text-2xl font-bold text-center text-green-600'>Delivery Person Signup</h2>
 
