@@ -10,7 +10,12 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const [doLoginUser, isLoggingIn] = useThunk(loginUser);
 
-  const { value: email, handleInputChange: handleEmailChange, handleInputBlur: handleEmailBlur, hasError: emailHasError } = useInput("", isEmail);
+  const {
+    value: email,
+    handleInputChange: handleEmailChange,
+    handleInputBlur: handleEmailBlur,
+    hasError: emailHasError,
+  } = useInput("", isEmail);
   const {
     value: password,
     handleInputChange: handlePasswordChange,
@@ -84,42 +89,58 @@ const LoginForm = () => {
   };
 
   return (
-    <div className='flex items-center justify-center min-h-screen text-gray-800 bg-gray-100'>
-      <form onSubmit={handleSubmit} className='w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg'>
-        <h2 className='mb-4 text-2xl font-bold text-center text-green-600'>Login to YumGo</h2>
+    <div className="flex items-center justify-center min-h-screen text-gray-800 bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg"
+      >
+        <h2 className="mb-4 text-2xl font-bold text-center text-green-600">
+          Login to YumGo
+        </h2>
 
         <div>
-          <label className='block mb-1 text-sm font-semibold'>Email *</label>
+          <label className="block mb-1 text-sm font-semibold">Email *</label>
           <input
-            type='email'
-            className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
+            type="email"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             value={email}
             onChange={handleEmailChange}
             onBlur={handleEmailBlur}
-            placeholder='Enter your email'
+            placeholder="Enter your email"
           />
-          {emailHasError && <p className='mt-1 text-sm text-red-500'>Please enter a valid email</p>}
+          {emailHasError && (
+            <p className="mt-1 text-sm text-red-500">
+              Please enter a valid email
+            </p>
+          )}
         </div>
 
         <div>
-          <label className='block mb-1 text-sm font-semibold'>Password *</label>
+          <label className="block mb-1 text-sm font-semibold">Password *</label>
           <input
-            type='password'
-            className='w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500'
+            type="password"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             value={password}
             onChange={handlePasswordChange}
             onBlur={handlePasswordBlur}
-            placeholder='Enter your password'
+            placeholder="Enter your password"
           />
-          {passwordHasError && <p className='mt-1 text-sm text-red-500'>Password cannot be empty</p>}
+          {passwordHasError && (
+            <p className="mt-1 text-sm text-red-500">
+              Password cannot be empty
+            </p>
+          )}
         </div>
 
         <button
-          type='submit'
+          type="submit"
           disabled={!isValid}
           className={`w-full py-3 font-bold rounded-md transition-colors duration-300 ${
-            isValid ? "bg-green-500 hover:bg-green-600 text-white cursor-pointer" : "bg-gray-400 text-gray-700 cursor-not-allowed"
-          }`}>
+            isValid
+              ? "bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+          }`}
+        >
           {isLoggingIn ? "Logging in..." : "Login"}
         </button>
       </form>

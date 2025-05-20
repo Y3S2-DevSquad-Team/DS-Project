@@ -1,13 +1,12 @@
-const express = require('express');
-const authToken = require('../middleware/authToken');
+const express = require("express");
 const {
   createMenuItem,
   getMenuItems,
   getMenuItem,
   updateMenuItem,
   deleteMenuItem,
-  getAllMenuItems
-} = require('../controllers/MenuItemController.js');
+  getAllMenuItems,
+} = require("../controllers/MenuItemController.js");
 
 const router = express.Router();
 
