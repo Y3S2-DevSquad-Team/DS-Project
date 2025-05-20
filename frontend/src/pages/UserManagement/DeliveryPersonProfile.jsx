@@ -6,7 +6,7 @@ import showToast from "../../utils/toastNotifications";
 import ProfileSidebar from "../../components/UserManagement/ProfileSidebar";
 import userAvatar from "../../assets/accountInfo/user-info-avatar.svg";
 import { TbEdit } from "react-icons/tb";
-import { fetchUserProfile } from "../../store/thunks/userThunks";
+import { fetchUserProfile, updateUser } from "../../store/thunks/userThunks";
 
 const DeliveryPersonProfile = () => {
   const navigate = useNavigate();
@@ -48,8 +48,7 @@ const DeliveryPersonProfile = () => {
 
   const handleSave = async () => {
     try {
-      // Optional: update endpoint
-      // await api.put("/api/auth", form);
+      await dispatch(updateUser(form)).unwrap();
       showToast("success", "Profile updated successfully");
       setIsEditing(false);
       dispatch(fetchUserProfile());
@@ -61,6 +60,18 @@ const DeliveryPersonProfile = () => {
   const handleLogout = () => {
     dispatch(userLogout());
     navigate("/");
+  };
+
+  const handleCancel = () => {
+    setForm({
+      username: currentUser.username || "",
+      email: currentUser.email || "",
+      phone: currentUser.phone || "",
+      vehicleType: currentUser.vehicleType || "",
+      licenseNumber: currentUser.licenseNumber || "",
+      nic: currentUser.nic || "",
+    });
+    setIsEditing(false);
   };
 
   if (loading || !currentUser) {
@@ -124,7 +135,7 @@ const DeliveryPersonProfile = () => {
             {isEditing ? (
               <>
                 <button
-                  onClick={() => setIsEditing(false)}
+                  onClick={handleCancel}
                   className="px-6 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600"
                 >
                   Cancel

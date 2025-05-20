@@ -63,8 +63,8 @@ router.post(
   "/signup/restaurant",
   upload.single("businessCertificate"),
   restaurantSignupValidator,
-  (req, res, next) => validate(req, res, next), // <-- this runs the validate() from utils.js
-  signupRestaurant // <-- controller
+  (req, res, next) => validate(req, res, next),
+  signupRestaurant
 );
 
 router.post("/login", loginValidator, validate, loginUser);
@@ -74,11 +74,16 @@ router.get("/", authToken, getUserProfile);
 router.put(
   "/",
   authToken,
-  restrictTo("User"),
+  restrictTo("Customer", "DeliveryPerson", "Restaurant", "Admin"),
   updateUserValidator,
   validate,
   updateUser
 );
-router.delete("/", authToken, restrictTo("User"), deleteUser);
+router.delete(
+  "/",
+  authToken,
+  restrictTo("Customer", "DeliveryPerson", "Restaurant", "Admin"),
+  deleteUser
+);
 
 module.exports = router;

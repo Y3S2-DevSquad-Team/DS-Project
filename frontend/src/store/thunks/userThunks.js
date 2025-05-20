@@ -37,3 +37,11 @@ export const fetchUserProfile = createAsyncThunk(
     return response.data.data;
   }
 );
+
+export const updateUser = createAsyncThunk(
+  "auth/updateUser",
+  async (updatedData) => {
+    const response = await api.put("/api/auth", updatedData);
+    return response.data.data; // returns the updated user
+  }
+);

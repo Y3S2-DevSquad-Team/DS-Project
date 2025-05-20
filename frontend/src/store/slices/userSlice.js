@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
   fetchUserProfile,
+  updateUser,
 } from "../thunks/userThunks";
 
 const initialState = {
@@ -47,12 +48,12 @@ const userSlice = createSlice({
       // Fetch User Profile
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.currentUser = action.payload;
-      });
+      })
 
-    // Update User
-    //   .addCase(updateUser.fulfilled, (state, action) => {
-    //     state.updateUser = Date.now();
-    //   });
+      // Update User
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.currentUser = action.payload;
+      });
   },
 });
 

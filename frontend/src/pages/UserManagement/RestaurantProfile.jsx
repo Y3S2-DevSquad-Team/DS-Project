@@ -6,7 +6,7 @@ import showToast from "../../utils/toastNotifications";
 import ProfileSidebar from "../../components/UserManagement/ProfileSidebar";
 import userAvatar from "../../assets/accountInfo/user-info-avatar.svg";
 import { TbEdit } from "react-icons/tb";
-import { fetchUserProfile } from "../../store/thunks/userThunks";
+import { fetchUserProfile, updateUser } from "../../store/thunks/userThunks";
 
 const RestaurantProfile = () => {
   const navigate = useNavigate();
@@ -50,14 +50,26 @@ const RestaurantProfile = () => {
 
   const handleSave = async () => {
     try {
-      // Optional: update endpoint
-      // await api.put("/api/auth", form);
+      await dispatch(updateUser(form)).unwrap();
       showToast("success", "Profile updated successfully");
       setIsEditing(false);
       dispatch(fetchUserProfile());
     } catch (error) {
       showToast("error", "Failed to update profile");
     }
+  };
+
+  const handleCancel = () => {
+    setForm({
+      username: currentUser.username || "",
+      email: currentUser.email || "",
+      phone: currentUser.phone || "",
+      restaurantName: currentUser.restaurantName || "",
+      location: currentUser.location || "",
+      businessLicenseNumber: currentUser.businessLicenseNumber || "",
+      cuisineType: currentUser.cuisineType || "",
+    });
+    setIsEditing(false);
   };
 
   const handleLogout = () => {
@@ -126,7 +138,7 @@ const RestaurantProfile = () => {
             {isEditing ? (
               <>
                 <button
-                  onClick={() => setIsEditing(false)}
+                  onClick={handleCancel}
                   className="px-6 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600"
                 >
                   Cancel

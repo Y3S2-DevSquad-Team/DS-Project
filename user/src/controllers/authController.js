@@ -606,14 +606,67 @@ exports.createAdminUser = async () => {
 
 exports.updateUser = async (req, res, next) => {
   const userId = req.user._id;
-  const { username, email, phone } = req.body;
+  const role = req.user.role;
+  const updatePayload = req.body;
 
   try {
+    const allowedFields = {
+      Customer: [
+        "username",
+        "email",
+        "phone",
+        "profileImage",
+        "address",
+        "deliveryAddresses",
+        "favorites",
+        "orderHistory",
+        "preferredPaymentMethod",
+        "isVerified",
+      ],
+      DeliveryPerson: [
+        "username",
+        "email",
+        "phone",
+        "profileImage",
+        "vehicleType",
+        "licenseNumber",
+        "nic",
+        "currentLocation",
+        "availability",
+        "assignedOrders",
+        "deliveryCompletedCount",
+      ],
+      Restaurant: [
+        "username",
+        "email",
+        "phone",
+        "profileImage",
+        "restaurantName",
+        "location",
+        "businessLicenseNumber",
+        "cuisineType",
+        "openingHours",
+        "bankDetails",
+        "restaurantStatus",
+        "businessCertificateUrl",
+      ],
+      Admin: ["username", "email", "phone", "profileImage", "address"],
+    };
+
+    const filteredUpdate = {};
+    const fields = allowedFields[role] || [];
+
+    fields.forEach((key) => {
+      if (updatePayload.hasOwnProperty(key)) {
+        filteredUpdate[key] = updatePayload[key];
+      }
+    });
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { username, email, phone },
+      { $set: filteredUpdate },
       { new: true }
-    );
+    ).select("-password");
 
     return handleResponse(res, 200, "User updated successfully", updatedUser);
   } catch (error) {
