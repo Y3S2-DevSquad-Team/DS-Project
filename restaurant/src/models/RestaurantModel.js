@@ -1,60 +1,56 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const RestaurantSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: false,
-    },
-    address: {
-      type: String,
-      required: true,
-    },
-    contactNumber: {
-      type: String,
-      required: true,
-    },
-    openingHours: {
-      type: String,
-      required: true,
-    },
-    availability: {
-      monday: { type: Boolean, default: true },
-      tuesday: { type: Boolean, default: true },
-      wednesday: { type: Boolean, default: true },
-      thursday: { type: Boolean, default: true },
-      friday: { type: Boolean, default: true },
-      saturday: { type: Boolean, default: true },
-      sunday: { type: Boolean, default: true },
-    },
-    ownerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+const RestaurantSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: false
+  },
+  address: {
+    type: String,
+    required: true
+  },
+  contactNumber: {
+    type: String,
+    required: true
+  },
+  openingHours: {
+    type: String,
+    required: true
+  },
+  availability: {
+    monday: { type: Boolean, default: true },
+    tuesday: { type: Boolean, default: true },
+    wednesday: { type: Boolean, default: true },
+    thursday: { type: Boolean, default: true },
+    friday: { type: Boolean, default: true },
+    saturday: { type: Boolean, default: true },
+    sunday: { type: Boolean, default: true }
+  },
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', 
+    required: true
+  },
 
-    currentOrders: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Order",
-      },
-    ],
-    orderHistory: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Order",
-      },
-    ],
-    maxActiveOrders: {
-      type: Number,
-      default: 20, // Example limit
-    },
+  // Add reference to orders
+  currentOrders: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order'
+  }],
+  orderHistory: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order'
+  }],
+  maxActiveOrders: {
+    type: Number,
+    default: 20  // Example limit
+  },
 
-    /*after connecting to order
+  /*after connecting to order
 orderLimit: {
   type: Number,
   default: 70
@@ -75,17 +71,14 @@ pendingOrders: [{
     default: 'pending'
   },*/
 
-    // Add this to your RestaurantSchema
-    menuItems: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "MenuItem",
-      },
-    ],
-  },
-  { timestamps: true }
-);
 
-const Restaurant = mongoose.model("Restaurant", RestaurantSchema);
+  // Add this to your RestaurantSchema
+menuItems: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'MenuItem'
+}]
+}, { timestamps: true });
+
+const Restaurant = mongoose.model('Restaurant', RestaurantSchema);
 
 module.exports = Restaurant;
