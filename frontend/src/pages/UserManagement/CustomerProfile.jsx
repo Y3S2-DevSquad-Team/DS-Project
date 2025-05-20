@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userLogout } from "../../store/slices/userSlice";
 import showToast from "../../utils/toastNotifications";
-import api from "../../configs/api";
 import ProfileSidebar from "../../components/UserManagement/ProfileSidebar";
 import userAvatar from "../../assets/accountInfo/user-info-avatar.svg";
 import { TbEdit } from "react-icons/tb";
@@ -13,37 +12,28 @@ const CustomerProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
-  const [isEditing, setIsEditing] = useState(false);
+  const loading = useSelector((state) => state.user.loading);
   const [form, setForm] = useState({
-    username: currentUser?.username || "",
-    email: currentUser?.email || "",
-    phone: currentUser?.phone || "",
+    username: "",
+    email: "",
+    phone: "",
   });
+  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
 
-  const loading = useSelector((state) => state.user.loading);
+  useEffect(() => {
+    dispatch(fetchUserProfile());
+  }, []);
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/");
-    } else {
-      dispatch(fetchUserProfile());
+    if (currentUser) {
+      setForm({
+        username: currentUser.username || "",
+        email: currentUser.email || "",
+        phone: currentUser.phone || "",
+      });
     }
   }, [currentUser]);
-
-  const fetchUserProfile = async () => {
-    try {
-      const res = await api.get("/api/auth/api/auth");
-      setForm({
-        username: currentUser.username,
-        email: currentUser.email,
-        phone: currentUser.phone,
-      });
-    } catch (error) {
-      console.error(error);
-      showToast("error", "Failed to fetch profile");
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +42,8 @@ const CustomerProfile = () => {
 
   const handleSave = async () => {
     try {
-      await api.put("/api/auth/api/auth", form);
+      // Optional: update endpoint
+      // await api.put("/api/auth", form);
       showToast("success", "Profile updated successfully");
       setIsEditing(false);
       dispatch(fetchUserProfile());
@@ -74,12 +65,10 @@ const CustomerProfile = () => {
 
   return (
     <>
-      {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen">
         <ProfileSidebar handleLogout={handleLogout} />
       </div>
 
-      {/* Main Content */}
       <div className="min-h-screen p-10 ml-64 overflow-y-auto bg-gray-100">
         <div className="w-full p-8 bg-white rounded-lg shadow-md">
           <div className="flex flex-col items-center mb-8">
