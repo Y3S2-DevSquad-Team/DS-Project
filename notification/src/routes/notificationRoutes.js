@@ -1,5 +1,4 @@
 const express = require("express");
-const authToken = require("../middleware/authToken");
 const {
   sendEmailNotification,
   sendSMSNotification,
@@ -7,7 +6,7 @@ const {
 
 const router = express.Router();
 
-router.post("/email", authToken, sendEmailNotification);
-router.post("/sms", authToken, sendSMSNotification);
+router.post("/email", sendEmailNotification);
+router.post("/sms", sendSMSNotification);
 
 module.exports = router;
