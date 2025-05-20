@@ -12,10 +12,10 @@ const router = express.Router();
 
 // Menu item routes
 router.get('/', getAllMenuItems);
-router.post('/', authToken, createMenuItem);
+router.post('/', createMenuItem);
 router.get('/restaurant/:restaurantId', getMenuItems);
 router.get('/:id', getMenuItem);
-router.put('/:id', authToken, updateMenuItem);
-router.delete('/:id', authToken, deleteMenuItem);
+router.put('/:id', updateMenuItem);
+router.delete('/:id', deleteMenuItem);
 
 module.exports = router;
