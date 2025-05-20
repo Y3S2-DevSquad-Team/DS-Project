@@ -5,6 +5,8 @@ import { useThunk } from "../../hooks/use-thunk";
 import { loginUser } from "../../store/thunks/userThunks";
 import showToast from "../../utils/toastNotifications";
 import { isEmail, isNotEmpty } from "../../utils/Validation";
+import { FaEnvelope, FaLock } from "react-icons/fa";
+import { GiChefToque } from "react-icons/gi";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -89,56 +91,63 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen text-gray-800 bg-gray-100 ml-64">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-200 via-green-50 to-green-100 ml-64 font-[Quicksand]">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg"
+        className="w-full max-w-md p-10 space-y-8 bg-white/90 rounded-3xl shadow-2xl border-2 border-green-200"
+        style={{ fontFamily: 'Quicksand, Poppins, Montserrat, sans-serif' }}
       >
-        <h2 className="mb-4 text-2xl font-bold text-center text-green-600">
-          Login to YumGo
+        <h2 className="mb-6 text-4xl font-extrabold text-center text-green-700 flex items-center justify-center gap-3">
+          <GiChefToque className="text-5xl text-green-500" /> Login to YumGo
         </h2>
 
         <div>
-          <label className="block mb-1 text-sm font-semibold">Email *</label>
-          <input
-            type="email"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            value={email}
-            onChange={handleEmailChange}
-            onBlur={handleEmailBlur}
-            placeholder="Enter your email"
-          />
+          <label className="block mb-2 text-lg font-semibold flex items-center gap-2">
+            <FaEnvelope className="text-green-500" /> Email *
+          </label>
+          <div className="relative">
+            <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <input
+              type="email"
+              className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 text-base"
+              value={email}
+              onChange={handleEmailChange}
+              onBlur={handleEmailBlur}
+              placeholder="Enter your email"
+            />
+          </div>
           {emailHasError && (
-            <p className="mt-1 text-sm text-red-500">
-              Please enter a valid email
-            </p>
+            <p className="mt-1 text-sm text-red-500">Please enter a valid email</p>
           )}
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-semibold">Password *</label>
-          <input
-            type="password"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            value={password}
-            onChange={handlePasswordChange}
-            onBlur={handlePasswordBlur}
-            placeholder="Enter your password"
-          />
+          <label className="block mb-2 text-lg font-semibold flex items-center gap-2">
+            <FaLock className="text-green-500" /> Password *
+          </label>
+          <div className="relative">
+            <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <input
+              type="password"
+              className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 text-base"
+              value={password}
+              onChange={handlePasswordChange}
+              onBlur={handlePasswordBlur}
+              placeholder="Enter your password"
+            />
+          </div>
           {passwordHasError && (
-            <p className="mt-1 text-sm text-red-500">
-              Password cannot be empty
-            </p>
+            <p className="mt-1 text-sm text-red-500">Password cannot be empty</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={!isValid}
-          className={`w-full py-3 font-bold rounded-md transition-colors duration-300 ${
+          className={`w-full py-3 text-xl font-bold rounded-xl transition-colors duration-300 shadow-lg flex items-center justify-center gap-2 ${
             isValid
-              ? "bg-green-500 hover:bg-green-600 text-white cursor-pointer"
-              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+              ? "bg-gradient-to-r from-green-400 via-green-900 to-green-500 hover:from-green-900 hover:to-green-600 text-white cursor-pointer"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
           {isLoggingIn ? "Logging in..." : "Login"}
