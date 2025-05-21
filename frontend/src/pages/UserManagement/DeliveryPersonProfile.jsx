@@ -5,7 +5,8 @@ import { userLogout } from "../../store/slices/userSlice";
 import showToast from "../../utils/toastNotifications";
 import ProfileSidebar from "../../components/UserManagement/ProfileSidebar";
 import userAvatar from "../../assets/accountInfo/user-info-avatar.svg";
-import { TbEdit } from "react-icons/tb";
+import { TbEdit, TbUser, TbMail, TbPhone, TbCar, TbLicense, TbId } from "react-icons/tb";
+import { MdOutlineSave, MdCancel, MdEditNote } from "react-icons/md";
 import { fetchUserProfile, updateUser } from "../../store/thunks/userThunks";
 
 const DeliveryPersonProfile = () => {
@@ -76,44 +77,53 @@ const DeliveryPersonProfile = () => {
 
   if (loading || !currentUser) {
     return (
-      <div className="mt-10 text-center text-gray-800">Loading profile...</div>
+      <div className="mt-10 text-center text-gray-800 text-lg font-medium">
+        Loading profile...
+      </div>
     );
   }
 
   return (
-    <>
-
-
-      {/* Main Content */}
-      <div className="min-h-screen p-10 overflow-y-auto bg-gray-100">
-        <div className="w-full p-8 bg-white rounded-lg shadow-md">
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative">
-              <img
-                src={userAvatar}
-                alt="Profile"
-                className="object-cover w-24 h-24 rounded-full"
-              />
-              {isEditing && (
-                <div
-                  className="absolute bottom-0 right-0 p-1 bg-green-500 rounded-full cursor-pointer"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  <TbEdit className="text-white" />
-                </div>
-              )}
-              <input ref={fileInputRef} type="file" className="hidden" />
-            </div>
-            <h2 className="mt-4 text-2xl font-bold text-green-600">
-              {form.username}
-            </h2>
-            <p className="text-gray-600">Delivery Person</p>
+    <div className="min-h-screen bg-gradient-to-br from-white via-green-50 to-green-100 px-4 py-10 font-sans">
+      <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-10 border border-green-200">
+        <div className="flex flex-col items-center mb-10">
+          <div className="relative w-36 h-36 group">
+            <img
+              src={userAvatar}
+              alt="Profile"
+              className="w-full h-full object-cover rounded-full border-4 border-green-500 shadow-lg group-hover:shadow-green-300 transition"
+            />
+            {isEditing && (
+              <button
+                onClick={() => fileInputRef.current.click()}
+                className="absolute bottom-1 right-1 p-2 bg-green-600 rounded-full hover:bg-black transition shadow-lg"
+              >
+                <TbEdit className="text-white text-2xl" />
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" className="hidden" />
           </div>
+          <h2 className="mt-4 text-5xl font-extrabold text-green-800 tracking-wide drop-shadow-lg">
+            {form.username}
+          </h2>
+          <p className="text-base text-black font-medium">Delivery Person</p>
+        </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {Object.entries(form).map(([key, value]) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {Object.entries(form).map(([key, value]) => {
+            const iconMap = {
+              username: <TbUser className="text-green-600 mr-2 text-2xl" />,
+              email: <TbMail className="text-green-600 mr-2 text-2xl" />,
+              phone: <TbPhone className="text-green-600 mr-2 text-2xl" />,
+              vehicleType: <TbCar className="text-green-600 mr-2 text-2xl" />,
+              licenseNumber: <TbLicense className="text-green-600 mr-2 text-2xl" />,
+              nic: <TbId className="text-green-600 mr-2 text-2xl" />,
+            };
+
+            return (
               <div key={key}>
-                <label className="block mb-1 text-sm font-medium text-gray-700 capitalize">
+                <label className="flex items-center text-base font-semibold text-green-800 mb-2 capitalize">
+                  {iconMap[key] || null}
                   {key.replace(/([A-Z])/g, " $1")}
                 </label>
                 <input
@@ -122,40 +132,40 @@ const DeliveryPersonProfile = () => {
                   value={value}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 text-gray-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100"
+                  className="w-full px-5 py-3 border-2 border-green-300 rounded-xl text-lg text-black bg-white focus:ring-4 focus:ring-green-200 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition"
                 />
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          <div className="flex justify-end gap-4 mt-8">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={handleCancel}
-                  className="px-6 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600"
-                >
-                  Save
-                </button>
-              </>
-            ) : (
+        <div className="flex flex-col md:flex-row justify-end items-center mt-10 gap-4">
+          {isEditing ? (
+            <div className="flex gap-4">
               <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600"
+                onClick={handleCancel}
+                className="flex items-center gap-2 px-6 py-2 text-base font-semibold text-green-900 bg-white border border-green-300 rounded-xl hover:bg-green-100 transition"
               >
-                Edit Info
+                <MdCancel className="text-2xl" /> Cancel
               </button>
-            )}
-          </div>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-6 py-2 text-base font-semibold text-white bg-gradient-to-r from-green-500 via-black to-green-900 rounded-xl hover:from-black hover:to-green-700 shadow-lg transition"
+              >
+                <MdOutlineSave className="text-2xl" /> Save
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-2 px-6 py-2 text-base font-semibold text-white bg-gradient-to-r from-green-500 via-black to-green-900 rounded-xl hover:from-black hover:to-green-700 shadow-lg transition"
+            >
+              <MdEditNote className="text-2xl" /> Edit Info
+            </button>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
